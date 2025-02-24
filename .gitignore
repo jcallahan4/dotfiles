@@ -1,0 +1,23 @@
+# macOS system files
+.DS_Store
+**/.DS_Store
+
+# Neovim
+lazy-lock.json
+.netrwhist
+**/lua-language-server/
+**/node_modules/
+**/package-lock.json
+
+# Temporary files
+*.swp
+*.swo
+*~
+
+# Alacritty backups
+**/*.toml.*.bak
+**/*.toml~
+
+# Python
+__pycache__/
+*.py[cod]

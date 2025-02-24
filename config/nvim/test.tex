@@ -1,0 +1,71 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+
+% Custom commands
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\dv}[2]{\frac{d#1}{d#2}y}
+\newcommand{\dvOne}[1]{\frac{d}{d #1}}
+\newcommand{\pdiv}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\pdivOne}[1]{\frac{\partial}{\partial #1}}
+\newcommand{\pdivN}[3]{\frac{\partial^{#3} #1}{\partial #2^{#3}}}
+
+
+\begin{document}
+    Here is a different line
+    And an even different line
+    And now we want to add $\left(some parens\right))$
+    now we're gonna test l( and look nothing but now
+
+    $ \left(testing inside a paren\right)$
+    now let's test some math:
+    Suppose we consider a model such that
+
+    \begin{equation*}
+        y \sim \mathcal{N}(\mu, \sigma \vert \gamma, \beta, \Theta)
+    \end{equation*}
+
+
+    Now we'll add some new stuff 
+    \begin{equation*}
+        \begin{bmatrix}
+            a &    b & 123234134434 & c \\
+            4   &    5     &     \dots \\
+        \end{bmatrix}
+    \end{equation*}
+    $b^{c} + f_{-1} a^{+}  R^{-}  a^{b} a^{c}$
+    $ \frac{a}{b}$
+    $ \frac{dx}{dt}$
+    $\abs{x}, \abs{f(x)^{2}}$
+    $\sqrt{4} + \sqrt{f(x) + 12 + \abs{14}}$
+    $\frac{b^{2} \pm \sqrt{a^{2} + 4ac}}{2a}$
+    $\binom{n}{k}$
+    The partial derivative with respect to \( x \) is \(\pdivOne{x}\).
+    The derivative with respect to $x$ is denoted $\dvOne{x}$
+
+% More complex usage
+The partial derivative with respect to \( x \) and \( y \) is \(\pdivOne{x} \pdivOne{y}\).
+The first partial derivative of \( f \) with respect to \( x \) is \(\pdivN{f}{x}{1}\).
+
+The second partial derivative of \( f \) with respect to \( x \) is \(\pdivN{f}{x}{2}\).
+
+The mixed second partial derivative of \( f \) with respect to \( x \) and \( y \) is \(\pdivN{f}{x \partial y}{1}\).
+
+ $\int_{a}^{b} f(x) \,dx$
+ $test \int_{\infty}^{\infty}$
+ $\equiv $
+ $\int_{\infty}^{\infty} f(y) \,dy$
+
+
+ Now we will write an integral:
+ \begin{equation*}
+     \int_{\infty}^{\infty}  \,dx
+     \int  \,dx
+     \int_{x}  \,dx
+     \int_{[\infty, 0)}  \,dm \boxed{a}
+     \iint_{[0,1] \times [0,1]}
+ \end{equation*}                
+ We will continue to test 
+
+\end{document}
