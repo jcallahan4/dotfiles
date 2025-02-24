@@ -4,6 +4,8 @@ return {
 		"williamboman/mason-lspconfig.nvim",
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
 	},
+	lazy = false,
+	priority = 1000,
 	config = function()
 		-- import mason
 		local mason = require("mason")
@@ -27,28 +29,19 @@ return {
 		mason_lspconfig.setup({
 			-- list of servers for mason to install
 			ensure_installed = {
-				"tsserver",
 				"html",
-				"cssls",
-				"tailwindcss",
-				"svelte",
 				"lua_ls",
-				"graphql",
-				"emmet_ls",
-				"prismals",
 				"pyright",
 			},
 		})
 
 		mason_tool_installer.setup({
 			ensure_installed = {
-				"prettier", -- prettier formatter
 				"stylua", -- lua formatter
 				"isort", -- python formatter
 				"black", -- python formatter
-                "latexindent", -- latex formatter
+				"latexindent", -- latex formatter
 				"pylint", -- python linter
-				"eslint_d", -- js linter
 			},
 		})
 	end,
