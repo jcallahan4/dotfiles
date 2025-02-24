@@ -17,5 +17,8 @@ if [ -f "/Users/jakecallahan/miniforge3/etc/profile.d/mamba.sh" ]; then
 fi
 # <<< conda initialize <<<
 
+# Source powerline from correct directory
+source /usr/local/share/powerlevel10k/powerlevel10k.zsh-theme
+
 alias school="cd ~/Desktop/classes/year02/spring"
 alias research="cd ~/Desktop/research/pacheco"
