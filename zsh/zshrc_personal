@@ -18,4 +18,4 @@ fi
 # <<< conda initialize <<<
 
 alias school="cd ~/Desktop/classes/year02/spring"
-
+alias reseach="cd ~/Desktop/reseach/pacheco"
