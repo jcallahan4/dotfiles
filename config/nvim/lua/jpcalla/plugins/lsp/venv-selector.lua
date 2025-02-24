@@ -12,9 +12,6 @@ return {
 		-- Debug prints
 		local conda_path = vim.fn.expand("~/miniforge3")
 		local envs_path = vim.fn.expand("~/miniforge3/envs")
-		print("Base conda path:", conda_path)
-		print("Environments path:", envs_path)
-		print("Path exists:", vim.fn.isdirectory(envs_path))
 
 		require("venv-selector").setup({
 			anaconda_base_path = conda_path,
