@@ -87,9 +87,6 @@ return {
 			end,
 
 			["pyright"] = function()
-				-- Debug print
-				print("Python path:", vim.fn.exepath("python"))
-
 				lspconfig["pyright"].setup({
 					capabilities = capabilities,
 					settings = {
@@ -103,11 +100,6 @@ return {
 							pythonPath = vim.fn.exepath("python"),
 						},
 					},
-					-- Add this to get more verbose logging
-					on_attach = function(client, bufnr)
-						print("Pyright attached to buffer", bufnr)
-						print("Python path:", client.config.settings.python.pythonPath)
-					end,
 				})
 			end,
 			["svelte"] = function()

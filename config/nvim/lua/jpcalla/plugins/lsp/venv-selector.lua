@@ -9,7 +9,6 @@ return {
 	lazy = false,
 	branch = "regexp",
 	config = function()
-		-- Debug prints
 		local conda_path = vim.fn.expand("~/miniforge3")
 		local envs_path = vim.fn.expand("~/miniforge3/envs")
 
