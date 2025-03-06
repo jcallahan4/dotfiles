@@ -65,7 +65,7 @@
 \DeclareMathOperator{\epi}{epi}
 
 % Expected value operator with auto-sizing brackets
-\newcommand{\E}[1]{\mathbb{E}\left[ #1 \right]}
+\newcommand{\E}[2][]{\mathbb{E}_{#1}\left[ #2 \right]}
 
 
 % Theorem-like environments

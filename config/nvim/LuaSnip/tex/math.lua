@@ -246,7 +246,7 @@ return {
 		}),
 		{ condition = tex.in_mathzone }
 	),
-	-- EXPECTED VALUE (to be used with mathdoc preamble)
+	-- EXPECTED VALUE, NO DISTRIBUTION (to be used with mathdoc preamble)
 	s(
 		{ trig = "([^%\\])EE", wordTrig = false, regTrig = true, snippetType = "autosnippet" },
 		fmta("<>\\E{<>}", {
@@ -254,6 +254,18 @@ return {
 				return snip.captures[1]
 			end),
 			d(1, get_visual),
+		}),
+		{ condition = tex.in_mathzone }
+	),
+	-- EXPECTED VALUE WITH DISTRIBUTION (to be used with mathdoc preamble)
+	s(
+		{ trig = "([^%\\])ED", wordTrig = false, regTrig = true, snippetType = "autosnippet" },
+		fmta("<>\\E[<>]{<>}", {
+			f(function(_, snip)
+				return snip.captures[1]
+			end),
+			i(1),
+			i(2),
 		}),
 		{ condition = tex.in_mathzone }
 	),
