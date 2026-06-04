@@ -9,6 +9,8 @@ return {
 		-- Enable syntax-related features
 		vim.cmd("syntax enable")
 
+		vim.g.vimtex_compiler_enabled = vim.fn.executable("latexmk") == 1 and 1 or 0
+
 		-- init.lua
 	end,
 	config = function()

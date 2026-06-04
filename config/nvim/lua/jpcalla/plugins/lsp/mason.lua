@@ -33,15 +33,14 @@ return {
 				"lua_ls",
 				"pyright",
 			},
+			automatic_enable = false,
 		})
 
 		mason_tool_installer.setup({
 			ensure_installed = {
 				"stylua", -- lua formatter
-				"isort", -- python formatter
-				"black", -- python formatter
+				"ruff", -- python formatter and linter
 				"latexindent", -- latex formatter
-				"pylint", -- python linter
 			},
 		})
 	end,
