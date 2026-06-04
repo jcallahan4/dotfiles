@@ -21,8 +21,20 @@ setopt hist_verify
 # autocomplete using arrow keys (based on history)
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
-source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# Homebrew zsh plugins
+if command -v brew >/dev/null 2>&1; then
+  BREW_PREFIX="$(brew --prefix)"
+
+  if [ -f "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+    source "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  fi
+
+  if [ -f "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
+    source "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+  fi
+fi
+
 
 # eza setup (commented out for now)
 # alias "ls"="eza --icons=always --color=always --long --no-filesize --icons=always --no-time -G  --no-permissions --no-user"
