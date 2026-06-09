@@ -27,4 +27,11 @@ EOL
 ln -sf ~/dotfiles/config/nvim/* ~/.config/nvim/
 ln -sf ~/dotfiles/config/alacritty/* ~/.config/alacritty/
 
+# Symlink personal LaTeX class/style files into the TeX tree.
+# TEXMFHOME defaults to ~/texmf; TeX searches tex/latex/ recursively and
+# live (no mktexlsr needed), so any .cls/.sty added under ~/dotfiles/latex/
+# is picked up automatically with no further setup.
+mkdir -p ~/texmf/tex/latex
+ln -sfn ~/dotfiles/latex ~/texmf/tex/latex/dotfiles
+
 echo "Installation complete! Please restart your shell."
