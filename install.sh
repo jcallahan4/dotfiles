@@ -74,10 +74,21 @@ elif [ "$os" = "Linux" ]; then
     fi
   fi
 
-  # Make zsh the default login shell (macOS already defaults to zsh).
-  if [ "$SHELL" != "$(command -v zsh)" ]; then
-    chsh -s "$(command -v zsh)" \
-      || echo "Could not change default shell; run: chsh -s $(command -v zsh)" >&2
+  # Use zsh for interactive sessions. We can't rely on chsh: on GCP OS Login
+  # VMs the account is served via NSS and isn't in /etc/passwd, so chsh has
+  # nothing to edit. Instead have bash exec zsh on interactive login. The
+  # guards keep it out of non-interactive shells (scp, scripts) and stop it
+  # looping once already in zsh.
+  handoff_marker="# dotfiles: hand off to zsh"
+  if ! grep -qF "$handoff_marker" ~/.bashrc 2>/dev/null; then
+    cat >> ~/.bashrc << 'EOF'
+
+# dotfiles: hand off to zsh for interactive sessions (chsh can't set the
+# login shell on OS Login VMs, where the account isn't in /etc/passwd).
+if [ -z "$ZSH_VERSION" ] && [ -t 1 ] && command -v zsh >/dev/null 2>&1; then
+  exec zsh -l
+fi
+EOF
   fi
 
 else
