@@ -1,12 +1,15 @@
-if command -v brew >/dev/null 2>&1; then
-  BREW_PREFIX="$(brew --prefix)"
+# powerlevel10k theme: Homebrew share dir on macOS, the git-cloned copy that
+# install.sh drops under ~/.local/share on Linux.
+for _p10k in \
+  "$(command -v brew >/dev/null 2>&1 && brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme" \
+  "$HOME/.local/share/powerlevel10k/powerlevel10k.zsh-theme"; do
+  [ -f "$_p10k" ] && { source "$_p10k"; break; }
+done
+unset _p10k
 
-  if [ -f "$BREW_PREFIX/share/powerlevel10k/powerlevel10k.zsh-theme" ]; then
-    source "$BREW_PREFIX/share/powerlevel10k/powerlevel10k.zsh-theme"
-  fi
-fi
-
-eval "$(zoxide init zsh)"
-
-alias cd="z"
 export PATH="$HOME/.local/bin:$PATH"
+
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
+  alias cd="z"
+fi

@@ -23,6 +23,68 @@ source ~/dotfiles/zsh/zshrc_common
 source ~/dotfiles/zsh/zshrc_${system_type}
 EOL
 
+# ---------------------------------------------------------------------------
+# Install dependencies
+#
+# The shell configs expect: zsh, neovim, zoxide, powerlevel10k, and the
+# zsh-autosuggestions / zsh-syntax-highlighting plugins. macOS installs
+# everything via Homebrew; Debian/Ubuntu uses apt, with a couple of tools
+# that apt can't provide handled separately (see below).
+# ---------------------------------------------------------------------------
+os="$(uname -s)"
+
+if [ "$os" = "Darwin" ]; then
+  if ! command -v brew >/dev/null 2>&1; then
+    echo "Homebrew not found. Install it from https://brew.sh, then re-run." >&2
+    exit 1
+  fi
+  brew install zsh neovim zoxide powerlevel10k \
+    zsh-autosuggestions zsh-syntax-highlighting
+
+elif [ "$os" = "Linux" ]; then
+  sudo apt-get update
+  sudo apt-get install -y zsh git curl zoxide \
+    zsh-autosuggestions zsh-syntax-highlighting
+
+  # powerlevel10k isn't packaged in apt; clone it to a stable location that
+  # zshrc_work knows to look in.
+  p10k_dir="$HOME/.local/share/powerlevel10k"
+  if [ ! -d "$p10k_dir" ]; then
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$p10k_dir"
+  fi
+
+  # apt's neovim is far too old for the treesitter `main` config (needs
+  # 0.12+). Install the official stable release tarball into /opt instead.
+  if ! command -v nvim >/dev/null 2>&1; then
+    case "$(uname -m)" in
+      x86_64)        nvim_asset="nvim-linux-x86_64" ;;
+      aarch64|arm64) nvim_asset="nvim-linux-arm64" ;;
+      *) echo "No neovim tarball for arch $(uname -m); install nvim manually." >&2
+         nvim_asset="" ;;
+    esac
+    if [ -n "$nvim_asset" ]; then
+      tmp="$(mktemp -d)"
+      curl -fsSL -o "$tmp/nvim.tar.gz" \
+        "https://github.com/neovim/neovim/releases/download/stable/${nvim_asset}.tar.gz"
+      sudo rm -rf /opt/nvim
+      sudo tar -C /opt -xzf "$tmp/nvim.tar.gz"
+      sudo mv "/opt/${nvim_asset}" /opt/nvim
+      sudo ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim
+      rm -rf "$tmp"
+    fi
+  fi
+
+  # Make zsh the default login shell (macOS already defaults to zsh).
+  if [ "$SHELL" != "$(command -v zsh)" ]; then
+    chsh -s "$(command -v zsh)" \
+      || echo "Could not change default shell; run: chsh -s $(command -v zsh)" >&2
+  fi
+
+else
+  echo "Unsupported OS: $os (expected Darwin or Linux)" >&2
+  exit 1
+fi
+
 # Create symlinks for config directories
 ln -sf ~/dotfiles/config/nvim/* ~/.config/nvim/
 ln -sf ~/dotfiles/config/alacritty/* ~/.config/alacritty/

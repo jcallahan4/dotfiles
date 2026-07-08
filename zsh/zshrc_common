@@ -22,18 +22,17 @@ setopt hist_verify
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
 
-# Homebrew zsh plugins
-if command -v brew >/dev/null 2>&1; then
-  BREW_PREFIX="$(brew --prefix)"
-
-  if [ -f "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
-    source "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-  fi
-
-  if [ -f "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
-    source "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-  fi
-fi
+# zsh plugins: source from whichever prefix has them. On macOS that's the
+# Homebrew share dir; on Debian/Ubuntu apt installs them under /usr/share.
+for _plugin_prefix in \
+  "$(command -v brew >/dev/null 2>&1 && brew --prefix)/share" \
+  /usr/share; do
+  [ -f "$_plugin_prefix/zsh-autosuggestions/zsh-autosuggestions.zsh" ] \
+    && source "$_plugin_prefix/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  [ -f "$_plugin_prefix/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ] \
+    && source "$_plugin_prefix/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+done
+unset _plugin_prefix
 
 
 # eza setup (commented out for now)
