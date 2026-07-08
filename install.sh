@@ -38,13 +38,14 @@ if [ "$os" = "Darwin" ]; then
     echo "Homebrew not found. Install it from https://brew.sh, then re-run." >&2
     exit 1
   fi
-  brew install zsh neovim zoxide powerlevel10k \
+  brew install zsh neovim zoxide powerlevel10k tree-sitter \
     zsh-autosuggestions zsh-syntax-highlighting
 
 elif [ "$os" = "Linux" ]; then
   sudo apt-get update
   sudo apt-get install -y zsh git curl zoxide \
-    zsh-autosuggestions zsh-syntax-highlighting
+    zsh-autosuggestions zsh-syntax-highlighting \
+    fd-find fzf build-essential unzip python3-venv python3-pip
 
   # powerlevel10k isn't packaged in apt; clone it to a stable location that
   # zshrc_work knows to look in.
@@ -72,6 +73,54 @@ elif [ "$os" = "Linux" ]; then
       sudo ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim
       rm -rf "$tmp"
     fi
+  fi
+
+  # apt's nodejs (v12, EOL) is too old for modern LSPs installed via Mason -
+  # pyright requires Node >=14 and silently misbehaves at runtime even where
+  # `npm install` only warns. Install the current LTS tarball into /opt,
+  # mirroring the neovim install above.
+  if ! command -v node >/dev/null 2>&1; then
+    sudo apt-get purge -y nodejs npm libnode-dev libnode72 nodejs-doc 2>/dev/null
+    node_version="$(curl -fsSL https://nodejs.org/dist/index.json \
+      | python3 -c 'import json,sys; print(next(r["version"] for r in json.load(sys.stdin) if r["lts"]))')"
+    case "$(uname -m)" in
+      x86_64)        node_asset="node-${node_version}-linux-x64" ;;
+      aarch64|arm64) node_asset="node-${node_version}-linux-arm64" ;;
+      *) echo "No node tarball for arch $(uname -m); install node manually." >&2
+         node_asset="" ;;
+    esac
+    if [ -n "$node_asset" ]; then
+      tmp="$(mktemp -d)"
+      curl -fsSL -o "$tmp/node.tar.xz" \
+        "https://nodejs.org/dist/${node_version}/${node_asset}.tar.xz"
+      sudo rm -rf /opt/node
+      sudo tar -C /opt -xJf "$tmp/node.tar.xz"
+      sudo mv "/opt/${node_asset}" /opt/node
+      sudo ln -sf /opt/node/bin/node /usr/local/bin/node
+      sudo ln -sf /opt/node/bin/npm /usr/local/bin/npm
+      sudo ln -sf /opt/node/bin/npx /usr/local/bin/npx
+      rm -rf "$tmp"
+    fi
+  fi
+
+  # nvim-treesitter's `main` branch shells out to the `tree-sitter` CLI to
+  # compile parsers (unlike the old master branch, which just needed cc).
+  # It isn't packaged in apt. The prebuilt GitHub-release binaries are built
+  # against a newer glibc than Ubuntu 22.04 ships, so they won't run here -
+  # build it from source with cargo instead (needs libclang for bindgen).
+  if ! command -v tree-sitter >/dev/null 2>&1 && [ ! -x /usr/local/bin/tree-sitter ]; then
+    sudo apt-get install -y libclang-dev clang
+
+    if ! command -v cargo >/dev/null 2>&1; then
+      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+        | sh -s -- -y --profile minimal
+      . "$HOME/.cargo/env"
+    fi
+
+    cargo install tree-sitter-cli
+    # Symlink into a directory already on PATH so it works regardless of
+    # which shell/rc files run - mirrors how nvim is linked above.
+    sudo ln -sf "$HOME/.cargo/bin/tree-sitter" /usr/local/bin/tree-sitter
   fi
 
   # Use zsh for interactive sessions. We can't rely on chsh: on GCP OS Login
