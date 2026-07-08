@@ -1,0 +1,12 @@
+if command -v brew >/dev/null 2>&1; then
+  BREW_PREFIX="$(brew --prefix)"
+
+  if [ -f "$BREW_PREFIX/share/powerlevel10k/powerlevel10k.zsh-theme" ]; then
+    source "$BREW_PREFIX/share/powerlevel10k/powerlevel10k.zsh-theme"
+  fi
+fi
+
+eval "$(zoxide init zsh)"
+
+alias cd="z"
+export PATH="$HOME/.local/bin:$PATH"

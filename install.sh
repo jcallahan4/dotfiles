@@ -28,10 +28,15 @@ ln -sf ~/dotfiles/config/nvim/* ~/.config/nvim/
 ln -sf ~/dotfiles/config/alacritty/* ~/.config/alacritty/
 
 # Symlink personal LaTeX class/style files into the TeX tree.
-# TEXMFHOME defaults to ~/texmf; TeX searches tex/latex/ recursively and
-# live (no mktexlsr needed), so any .cls/.sty added under ~/dotfiles/latex/
-# is picked up automatically with no further setup.
-mkdir -p ~/texmf/tex/latex
-ln -sfn ~/dotfiles/latex ~/texmf/tex/latex/dotfiles
+# TEXMFHOME is where TeX looks for user files; it defaults to ~/Library/texmf
+# on macOS (MacTeX) and ~/texmf on Linux (TeX Live). Ask kpsewhich so this
+# works on both. TeX searches tex/latex/ recursively and live (no mktexlsr
+# needed), so any .cls/.sty added under ~/dotfiles/latex/ is picked up
+# automatically with no further setup.
+if command -v kpsewhich >/dev/null 2>&1; then
+  texmfhome="$(kpsewhich -var-value=TEXMFHOME)"
+  mkdir -p "$texmfhome/tex/latex"
+  ln -sfn ~/dotfiles/latex "$texmfhome/tex/latex/dotfiles"
+fi
 
 echo "Installation complete! Please restart your shell."

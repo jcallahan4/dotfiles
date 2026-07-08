@@ -21,3 +21,6 @@ lazy-lock.json
 # Python
 __pycache__/
 *.py[cod]
+
+# Logs
+*.log
