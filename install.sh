@@ -8,6 +8,8 @@ mkdir -p "$backup_dir/.config"
 [ -d ~/.config/nvim ] && mv ~/.config/nvim "$backup_dir/.config/"
 [ -d ~/.config/alacritty ] && mv ~/.config/alacritty "$backup_dir/.config/"
 [ -f ~/.zshrc ] && mv ~/.zshrc "$backup_dir/"
+[ -f ~/.p10k.zsh ] && [ ! -L ~/.p10k.zsh ] && mv ~/.p10k.zsh "$backup_dir/"
+[ -f ~/.wezterm.lua ] && [ ! -L ~/.wezterm.lua ] && mv ~/.wezterm.lua "$backup_dir/"
 
 # Create necessary directories
 mkdir -p ~/.config/nvim
@@ -40,6 +42,16 @@ if [ "$os" = "Darwin" ]; then
   fi
   brew install zsh neovim zoxide powerlevel10k tree-sitter \
     zsh-autosuggestions zsh-syntax-highlighting
+
+  # Homebrew is not on PATH in a fresh zsh; install.sh only manages ~/.zshrc,
+  # so put the shellenv line in ~/.zprofile (runs once per login shell).
+  if ! grep -qF 'brew shellenv' ~/.zprofile 2>/dev/null; then
+    printf '\neval "$(%s shellenv zsh)"\n' "$(brew --prefix)/bin/brew" >> ~/.zprofile
+  fi
+
+  # Terminal font + WezTerm. The p10k config and wezterm.lua both assume
+  # "MesloLGS Nerd Font Mono".
+  brew install --cask font-meslo-lg-nerd-font wezterm
 
 elif [ "$os" = "Linux" ]; then
   sudo apt-get update
@@ -148,6 +160,27 @@ fi
 # Create symlinks for config directories
 ln -sf ~/dotfiles/config/nvim/* ~/.config/nvim/
 ln -sf ~/dotfiles/config/alacritty/* ~/.config/alacritty/
+
+# Prompt (Powerlevel10k) and terminal (WezTerm) configs live at fixed paths
+# in $HOME rather than under ~/.config.
+ln -sf ~/dotfiles/zsh/p10k.zsh ~/.p10k.zsh
+ln -sf ~/dotfiles/wezterm/wezterm.lua ~/.wezterm.lua
+
+# Claude Code user-level config: global instructions and the output style.
+mkdir -p ~/.claude/output-styles
+ln -sf ~/dotfiles/claude/CLAUDE.md ~/.claude/CLAUDE.md
+ln -sf ~/dotfiles/claude/output-styles/plain-teacher.md ~/.claude/output-styles/plain-teacher.md
+
+# Karabiner-Elements (macOS only). Karabiner rewrites karabiner.json itself
+# and may replace a symlink with a real file, so copy instead of link, and
+# never clobber an existing config. Install the app with:
+#   brew install --cask karabiner-elements
+if [ "$os" = "Darwin" ] && [ ! -f ~/.config/karabiner/karabiner.json ]; then
+  mkdir -p ~/.config/karabiner/assets/complex_modifications
+  cp ~/dotfiles/config/karabiner/karabiner.json ~/.config/karabiner/
+  cp ~/dotfiles/config/karabiner/assets/complex_modifications/*.json \
+    ~/.config/karabiner/assets/complex_modifications/
+fi
 
 # Symlink personal LaTeX class/style files into the TeX tree.
 # TEXMFHOME is where TeX looks for user files; it defaults to ~/Library/texmf

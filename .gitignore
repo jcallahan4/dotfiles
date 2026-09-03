@@ -24,3 +24,6 @@ __pycache__/
 
 # Logs
 *.log
+
+# Claude Code per-machine permissions
+.claude/settings.local.json
