@@ -23,6 +23,8 @@ cat > ~/.zshrc << EOL
 # This file is managed by dotfiles installer
 source ~/dotfiles/zsh/zshrc_common
 source ~/dotfiles/zsh/zshrc_${system_type}
+# Machine-specific settings (not tracked in the repo). Sourced last so it can override.
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local
 EOL
 
 # ---------------------------------------------------------------------------
