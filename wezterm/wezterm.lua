@@ -28,5 +28,12 @@ config.colors = {
 	brights = { "#214969", "#E52E2E", "#44FFB1", "#FFE073", "#A277FF", "#a277ff", "#24EAF7", "#24EAF7" },
 }
 
+-- Shift+Enter: send the CSI u "shift + enter" key code instead of a plain
+-- carriage return, so TUIs like Codex and Claude Code can insert a newline
+-- rather than submit the prompt.
+config.keys = {
+	{ key = "Enter", mods = "SHIFT", action = wezterm.action.SendString("\x1b[13;2u") },
+}
+
 -- and finally, return the configuration to wezterm
 return config
