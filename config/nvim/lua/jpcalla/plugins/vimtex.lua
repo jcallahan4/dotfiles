@@ -29,6 +29,7 @@ return {
 			"LaTeX hooks Warning",
 			'Package siunitx Warning: Detected the "physics" package:',
 			"Package hyperref Warning: Token not allowed in a PDF string",
+			"LaTeX Warning: '!ht'",
 		}
 
 		vim.g.vimtex_quickfix_open_on_warning = 0
@@ -37,7 +38,7 @@ return {
 		local keymap = vim.keymap
 		keymap.set("n", "<leader>vc", "<cmd>VimtexCompile<CR>", { desc = "Toggle Vim compiler" }) -- toggle file explorer
 		keymap.set("n", "<leader>vs", "<cmd>VimtexView<CR>", { desc = "Perform vim forward search" }) -- toggle file explorer on current file
-		keymap.set("n", "<leader>vq", "<cmd>copen<CR>", { desc = "Open LaTeX quickfix window" })
-		keymap.set("n", "<leader>vQ", "<cmd>cclose<CR>", { desc = "Close LaTeX quickfix window" })
+		keymap.set("n", "<leader>vQ", "<cmd>copen<CR>", { desc = "Open LaTeX quickfix window" })
+		keymap.set("n", "<leader>vq", "<cmd>cclose<CR>", { desc = "Close LaTeX quickfix window" })
 	end,
 }

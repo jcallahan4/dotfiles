@@ -284,7 +284,7 @@ return {
 	-- LOGARITHM
 	s(
 		{ trig = "([^%a%\\])ll", wordTrig = false, regTrig = true, snippetType = "autosnippet" },
-		fmta("<>\\log(<>)", {
+		fmta("<>\\log <> ", {
 			f(function(_, snip)
 				return snip.captures[1]
 			end),

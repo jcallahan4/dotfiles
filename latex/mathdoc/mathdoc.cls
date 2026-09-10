@@ -63,9 +63,17 @@
 \DeclareMathOperator{\Int}{Int}
 \DeclareMathOperator{\card}{card}
 \DeclareMathOperator{\epi}{epi}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
 
+% Probability operators
 % Expected value operator with auto-sizing brackets
 \newcommand{\E}[2][]{\mathbb{E}_{#1}\left[ #2 \right]}
+% KL operator
+\DeclarePairedDelimiterX{\kldivx}[2]{(}{)}{%
+  #1\;\delimsize\|\;#2%
+}
+\newcommand{\kl}{D_{KL}\kldivx}
 
 
 % Theorem-like environments
