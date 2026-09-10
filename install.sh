@@ -51,9 +51,11 @@ if [ "$os" = "Darwin" ]; then
     printf '\neval "$(%s shellenv zsh)"\n' "$(brew --prefix)/bin/brew" >> ~/.zprofile
   fi
 
-  # Terminal font + WezTerm. The p10k config and wezterm.lua both assume
-  # "MesloLGS Nerd Font Mono".
-  brew install --cask font-meslo-lg-nerd-font wezterm
+  # Terminal font + Ghostty. The p10k, ghostty, and wezterm configs all
+  # assume "MesloLGS Nerd Font Mono". WezTerm is no longer installed by
+  # default (its stable release is frozen at 2024-02); wezterm.lua is kept
+  # for machines that still have it.
+  brew install --cask font-meslo-lg-nerd-font ghostty
 
 elif [ "$os" = "Linux" ]; then
   sudo apt-get update
@@ -167,6 +169,10 @@ ln -sf ~/dotfiles/config/alacritty/* ~/.config/alacritty/
 # in $HOME rather than under ~/.config.
 ln -sf ~/dotfiles/zsh/p10k.zsh ~/.p10k.zsh
 ln -sf ~/dotfiles/wezterm/wezterm.lua ~/.wezterm.lua
+
+# Ghostty (macOS terminal, replaced WezTerm 2026-09-10). Config dir is XDG.
+mkdir -p ~/.config/ghostty
+ln -sf ~/dotfiles/ghostty/config ~/.config/ghostty/config
 
 # Claude Code user-level config: global instructions and the output style.
 mkdir -p ~/.claude/output-styles

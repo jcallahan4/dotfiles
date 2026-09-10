@@ -1,0 +1,39 @@
+# Ghostty config, ported from wezterm/wezterm.lua (the "coolnight" look).
+# Linked to ~/.config/ghostty/config by install.sh. Ghostty reloads on
+# Cmd+Shift+, ; see `ghostty +show-config --default` for every key.
+
+font-family = MesloLGS Nerd Font Mono
+font-size = 19
+
+# Window: no title bar, translucent and blurred, like WezTerm's
+# window_decorations = "RESIZE" + opacity 0.85 + blur 10.
+macos-titlebar-style = hidden
+background-opacity = 0.85
+background-blur = 10
+window-padding-x = 4
+window-padding-y = 4
+macos-option-as-alt = true
+
+# Colors ("coolnight")
+background = #000000
+foreground = #CBE0F0
+cursor-color = #47FF9C
+cursor-text = #011423
+selection-background = #033259
+selection-foreground = #CBE0F0
+palette = 0=#214969
+palette = 1=#E52E2E
+palette = 2=#44FFB1
+palette = 3=#FFE073
+palette = 4=#0FC5ED
+palette = 5=#a277ff
+palette = 6=#24EAF7
+palette = 7=#24EAF7
+palette = 8=#214969
+palette = 9=#E52E2E
+palette = 10=#44FFB1
+palette = 11=#FFE073
+palette = 12=#A277FF
+palette = 13=#a277ff
+palette = 14=#24EAF7
+palette = 15=#24EAF7
