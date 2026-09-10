@@ -1,5 +1,6 @@
+[general]
 import = [
-  "/usr/local/lib/node_modules/alacritty-themes/themes/Monokai-Pro.toml"
+  "~/.config/alacritty/themes/themes/monokai_pro.toml"
 ]
 
 [env]
@@ -20,3 +21,8 @@ size = 15
 
   [font.normal]
   family = "MesloLGS Nerd Font Mono"
+
+[[keyboard.bindings]]
+key = "Return"
+mods = "Shift"
+chars = "\u001B\r"
