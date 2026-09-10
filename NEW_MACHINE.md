@@ -209,7 +209,10 @@ Most are encoded in `install.sh` and the zsh files; the notes explain why.
    22.04 ships, so `install.sh` builds it with `cargo install tree-sitter-cli`
    (installing rustup, clang, and libclang-dev first) and links it into
    `/usr/local/bin`. On the work Mac there is also an npm-global
-   `tree-sitter-cli`; it is redundant with the Homebrew one.
+   `tree-sitter-cli`; it is redundant with the Homebrew one. Since Homebrew's
+   tree-sitter 0.27 (2026-09) the `tree-sitter` formula is library-only and the
+   CLI moved to a separate `tree-sitter-cli` formula; `install.sh` installs
+   both. Upgrading `tree-sitter` alone silently removes the CLI binary.
 3. **Node had to be new enough for pyright.** Mason installs pyright through
    npm and pyright needs Node 14+. Ubuntu's apt `nodejs` is v12 and pyright
    misbehaves silently. `install.sh` purges apt node and installs the current
