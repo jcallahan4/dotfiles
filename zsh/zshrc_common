@@ -37,3 +37,32 @@ unset _plugin_prefix
 
 # eza setup (commented out for now)
 # alias "ls"="eza --icons=always --color=always --long --no-filesize --icons=always --no-time -G  --no-permissions --no-user"
+
+# nic: open (or reattach to) a tmux "cockpit" for the current project.
+#   nic            -> session named after $PWD; nvim left 70%, agent right 30%,
+#                     terminal across the bottom 20%
+#   nic myname     -> explicit session name
+#   NIC_AGENT=claude nic   -> use a different agent (default: codex)
+# Detach with prefix-d; `nic` again reattaches with everything still running.
+nic() {
+  local session_name="${1:-$(basename "$PWD")}"
+  session_name="${session_name//./_}"
+  local agent="${NIC_AGENT:-codex}"
+
+  if [[ -n "$TMUX" ]]; then
+    echo "Already in a tmux session. Detach first (prefix-d) or run from outside tmux."
+    return 1
+  fi
+  if tmux has-session -t "=$session_name" 2>/dev/null; then
+    tmux attach-session -t "=$session_name"
+    return
+  fi
+
+  tmux new-session -d -s "$session_name" -c "$PWD" -x "$(tput cols)" -y "$(tput lines)"
+  tmux split-window -v -t "$session_name" -c "$PWD" -l 20%
+  tmux split-window -h -t "$session_name":1.1 -c "$PWD" -l 30%
+  tmux send-keys -t "$session_name":1.1 'nvim' C-m
+  tmux send-keys -t "$session_name":1.2 "$agent" C-m
+  tmux select-pane -t "$session_name":1.1
+  tmux attach-session -t "$session_name"
+}

@@ -42,7 +42,7 @@ if [ "$os" = "Darwin" ]; then
     echo "Homebrew not found. Install it from https://brew.sh, then re-run." >&2
     exit 1
   fi
-  brew install zsh neovim zoxide powerlevel10k tree-sitter tree-sitter-cli \
+  brew install zsh neovim zoxide powerlevel10k tree-sitter tree-sitter-cli tmux \
     zsh-autosuggestions zsh-syntax-highlighting
 
   # Homebrew is not on PATH in a fresh zsh; install.sh only manages ~/.zshrc,
@@ -59,7 +59,7 @@ if [ "$os" = "Darwin" ]; then
 
 elif [ "$os" = "Linux" ]; then
   sudo apt-get update
-  sudo apt-get install -y zsh git curl zoxide \
+  sudo apt-get install -y zsh git curl zoxide tmux \
     zsh-autosuggestions zsh-syntax-highlighting \
     fd-find fzf build-essential unzip python3-venv python3-pip
 
@@ -169,6 +169,10 @@ ln -sf ~/dotfiles/config/alacritty/* ~/.config/alacritty/
 # in $HOME rather than under ~/.config.
 ln -sf ~/dotfiles/zsh/p10k.zsh ~/.p10k.zsh
 ln -sf ~/dotfiles/wezterm/wezterm.lua ~/.wezterm.lua
+
+# tmux (the `nic` cockpit in zshrc_common depends on it).
+mkdir -p ~/.config/tmux
+ln -sf ~/dotfiles/tmux/tmux.conf ~/.config/tmux/tmux.conf
 
 # Ghostty (macOS terminal, replaced WezTerm 2026-09-10). Config dir is XDG.
 mkdir -p ~/.config/ghostty
