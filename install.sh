@@ -194,6 +194,13 @@ if [ "$os" = "Darwin" ] && [ ! -f ~/.config/karabiner/karabiner.json ]; then
     ~/.config/karabiner/assets/complex_modifications/
 fi
 
+# macOS: "Open in Neovim.app" so double-clicking .tex/.py in Finder opens nvim in
+# a Ghostty window. Needs duti (brew) to set the defaults.
+if [ "$os" = "Darwin" ]; then
+  command -v duti >/dev/null 2>&1 || brew install duti
+  bash ~/dotfiles/macos/build-open-in-neovim.sh
+fi
+
 # Symlink personal LaTeX class/style files into the TeX tree.
 # TEXMFHOME is where TeX looks for user files; it defaults to ~/Library/texmf
 # on macOS (MacTeX) and ~/texmf on Linux (TeX Live). Ask kpsewhich so this
