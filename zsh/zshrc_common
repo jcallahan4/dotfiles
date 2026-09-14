@@ -91,7 +91,9 @@ try:
 except Exception:
     print("remote control: " + (raw or "no response")); sys.exit(1)
 status = d.get("status", "unknown")
-print(f"remote control: {status}  (server {d.get(\"serverName\", \"?\")}, codex {d.get(\"cliVersion\", \"?\")})")
+server = d.get("serverName", "?")
+version = d.get("cliVersion", "?")
+print("remote control: %s  (server %s, codex %s)" % (status, server, version))
 sys.exit(0 if status == "connected" else 1)'
   }
 
