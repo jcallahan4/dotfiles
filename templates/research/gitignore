@@ -1,0 +1,25 @@
+# python / uv
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+# run outputs: keep small summaries, ignore the rest
+runs/*
+!runs/**/summary.json
+!runs/**/metrics.csv
+# editors / os
+.DS_Store
+.idea/
+.vscode/
+**/.claude/settings.local.json
+# latex
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.synctex.gz
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.bbl
+paper/*.blg

@@ -148,6 +148,15 @@ can `tail -f` it.
    uv python install 3.10 3.12
    uv tool install keyring --with keyrings.google-artifactregistry-auth   # work: pip/uv auth to Google Artifact Registry
    ```
+   Behind a TLS-intercepting proxy (Sandia Zscaler): uv ignores `SSL_CERT_FILE`
+   by default. Put `export UV_SYSTEM_CERTS=1` in `~/.zshrc.local` alongside an
+   `SSL_CERT_FILE` that contains the proxy's root, or every download fails with
+   `invalid peer certificate: UnknownIssuer`.
+
+   New research projects: `mkdir proj && cd proj && startup` scaffolds a uv
+   project from `templates/research/` (PROJECT.md, AGENTS.md, experiments/,
+   configs/smoke.yaml, tests, baseline tag); `newexp <name>` adds a numbered
+   experiment folder. Both are in `zsh/research.zsh`. Then `nic`.
 10. TeX (optional, needed for vimtex and the `mathdoc` class):
     ```bash
     brew install --cask mactex-no-gui

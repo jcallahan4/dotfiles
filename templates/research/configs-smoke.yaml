@@ -1,0 +1,8 @@
+# Smoke config: the whole pipeline in under a minute. Run before any long job.
+#   uv run python -m {{PACKAGE}}.train --config configs/smoke.yaml
+seed: 0
+steps: 200            # tunable
+eval_every: 100
+batch_size: 8
+device: cpu
+run_dir: runs/smoke
