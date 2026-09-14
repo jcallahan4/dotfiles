@@ -183,6 +183,10 @@ mkdir -p ~/.claude/output-styles
 ln -sf ~/dotfiles/claude/CLAUDE.md ~/.claude/CLAUDE.md
 ln -sf ~/dotfiles/claude/output-styles/plain-teacher.md ~/.claude/output-styles/plain-teacher.md
 
+# Codex global instructions (read in every repo; the repo AGENTS.md adds to it).
+mkdir -p ~/.codex
+ln -sf ~/dotfiles/codex/AGENTS.md ~/.codex/AGENTS.md
+
 # Karabiner-Elements (macOS only). Karabiner rewrites karabiner.json itself
 # and may replace a symlink with a real file, so copy instead of link, and
 # never clobber an existing config. Install the app with:

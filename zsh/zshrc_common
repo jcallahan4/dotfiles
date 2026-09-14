@@ -69,3 +69,49 @@ nic() {
 
 # research project scaffolding: startup, newexp
 [ -f ~/dotfiles/zsh/research.zsh ] && source ~/dotfiles/zsh/research.zsh
+
+# ontheroad: leave the desk. Makes sure Codex remote control is running (starts it
+# if not), prints its status, then keeps the Mac awake until you Ctrl-C.
+#   ontheroad          start/check remote control, then caffeinate
+#   ontheroad status   just print the status
+#   ontheroad stop     stop the remote-control daemon
+ontheroad() {
+  local codex_bin="${CODEX_BIN:-$HOME/.local/bin/codex}"
+  [[ -x "$codex_bin" ]] || codex_bin="$(command -v codex)"
+  [[ -n "$codex_bin" ]] || { echo "ontheroad: codex not found" >&2; return 1; }
+
+  _ontheroad_status() {
+    # `remote-control start --json` is idempotent: it starts the daemon if needed and
+    # reports the connection either way.
+    "$codex_bin" remote-control start --json 2>&1 | python3 -c '
+import json, sys
+raw = sys.stdin.read().strip()
+try:
+    d = json.loads(raw.splitlines()[-1])
+except Exception:
+    print("remote control: " + (raw or "no response")); sys.exit(1)
+status = d.get("status", "unknown")
+print(f"remote control: {status}  (server {d.get(\"serverName\", \"?\")}, codex {d.get(\"cliVersion\", \"?\")})")
+sys.exit(0 if status == "connected" else 1)'
+  }
+
+  case "${1:-}" in
+    status) _ontheroad_status; return ;;
+    stop)   "$codex_bin" remote-control stop; return ;;
+  esac
+
+  echo "On the road again..."
+  local was_running=0
+  pgrep -qf 'codex app-server --remote-control' && was_running=1
+  if (( was_running )); then
+    echo "remote control already running"
+  else
+    echo "starting remote control"
+  fi
+  if ! _ontheroad_status; then
+    echo "not connected; retrying in 5s"; sleep 5
+    _ontheroad_status || { echo "still not connected. Try: codex remote-control stop && ontheroad" >&2; }
+  fi
+  echo "Keeping the Mac awake (Ctrl-C to stop; the remote-control daemon keeps running)."
+  caffeinate -i
+}

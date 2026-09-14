@@ -44,6 +44,7 @@ The reference machine on 2026-09-03:
 | `config/alacritty/` | `~/.config/alacritty/` | legacy from the personal Mac; Alacritty is not installed on the work Mac; the themes submodule is not initialized |
 | `latex/` | `$TEXMFHOME/tex/latex/dotfiles` (symlink) | TEXMFHOME comes from `kpsewhich`; only runs if TeX is installed |
 | `claude/CLAUDE.md` | `~/.claude/CLAUDE.md` (symlink) | global Claude Code instructions |
+| `codex/AGENTS.md` | `~/.codex/AGENTS.md` (symlink) | global Codex instructions: one-change rule, uv, writing style |
 | `claude/output-styles/plain-teacher.md` | `~/.claude/output-styles/plain-teacher.md` (symlink) | |
 | `Brewfile` | not installed automatically | full `brew bundle dump` of the work Mac, including work-only software |
 
@@ -157,6 +158,13 @@ can `tail -f` it.
    project from `templates/research/` (PROJECT.md, AGENTS.md, experiments/,
    configs/smoke.yaml, tests, baseline tag); `newexp <name>` adds a numbered
    experiment folder. Both are in `zsh/research.zsh`. Then `nic`.
+
+   Leaving the desk: `ontheroad` (in `zshrc_common`) starts Codex remote control if it
+   is not running, prints the connection status, and runs `caffeinate` until Ctrl-C.
+   `ontheroad status` / `ontheroad stop`. Remote control needs the standalone Codex
+   install (`curl -fsSL https://chatgpt.com/codex/install.sh | sh`), MFA on the ChatGPT
+   account, and behind Zscaler an `SSL_CERT_FILE` bundle that contains the proxy root
+   (the websocket ignores `CODEX_CA_CERTIFICATE`).
 10. TeX (optional, needed for vimtex and the `mathdoc` class):
     ```bash
     brew install --cask mactex-no-gui
