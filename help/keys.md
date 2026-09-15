@@ -13,15 +13,18 @@ prefix.
 | `s` | Choose a session from a list. |
 | `\|` or `-` | Split to the right or below. |
 | `c` | Open a new window. |
-| `[` | Enter copy mode. Use `v` to select, `y` to copy to the clipboard, and `q` to exit. |
+| `[` | Enter copy mode (scrollback). Or just scroll with the wheel. |
 | `r` | Reload the tmux configuration. |
 
 The mouse also works. Click a pane, drag a border, or scroll.
 
-Scrolling enters copy mode. The status bar shows `[tmux]` and a yellow box with your
-position in the scrollback, such as `[5/11]`. The pane is read-only until you leave. Press
-`q` to exit, or scroll back to the bottom. In copy mode, `/` searches, `n` finds the next
-match, `v` starts a selection, and `y` copies it to the clipboard.
+Scrolling enters copy mode, which works like a plain terminal's scrollback. The status
+bar shows `[tmux]` and a yellow box with your position, such as `[5/11]`. Arrows, PageUp,
+PageDown, and the wheel move through history. Start typing and tmux leaves copy mode and
+delivers the keystroke to the program, so you can scroll up to read earlier output while
+composing a reply to Codex. Escape leaves without typing. To copy text, drag with the
+mouse or hold Shift with the arrows to select, then press Enter; the selection goes to the
+clipboard. `Ctrl-s` searches upward.
 
 ## Neovim
 
