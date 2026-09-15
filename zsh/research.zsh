@@ -136,7 +136,57 @@ _mtg_link() {
   ln -s "$MEETINGS_FILE" "$dir/MEETINGS.md"
 }
 
+
+# mtg done: after a meeting. Commits ~/notes (making it a git repo on first use), then
+# asks Codex (non-interactive, sandboxed to this project) to copy the lines of the newest
+# entry that concern this project into docs/meetings.md with an action-item list, commits
+# that, and prints the decisions, your todos, their todos, and next steps.
+_mtg_done() {
+  local root="$PWD"
+  while [[ "$root" != / && ! -f "$root/PROJECT.md" ]]; do root="${root:h}"; done
+  [[ -f "$root/PROJECT.md" ]] || { echo "mtg done: run inside a project (no PROJECT.md found)" >&2; return 1; }
+  local project="${root:t}"
+  _mtg_ensure_master
+
+  # 1. commit the master notes
+  ( cd "${MEETINGS_FILE:h}" && { [[ -d .git ]] || git init -q; } \
+    && git add -A && { git diff --cached --quiet || git commit -q -m "Meeting notes $(date +%Y-%m-%d)"; } )
+
+  # 2. newest entry
+  local entry
+  entry=$(python3 - "$MEETINGS_FILE" << 'PY'
+import sys
+lines = open(sys.argv[1]).read().splitlines()
+starts = [i for i, l in enumerate(lines) if l.startswith("## ")]
+if not starts: sys.exit("no entries")
+a = starts[0]; b = starts[1] if len(starts) > 1 else len(lines)
+print("\n".join(lines[a:b]).strip())
+PY
+  )
+  [[ -n "$entry" ]] || return 1
+
+  # 3. agent: extract the project-relevant part + action items into docs/meetings.md
+  local codex_bin="${CODEX_BIN:-$HOME/.local/bin/codex}"; [[ -x "$codex_bin" ]] || codex_bin="$(command -v codex)"
+  echo "==> extracting notes for '$project' into docs/meetings.md"
+  ( cd "$root" && "$codex_bin" exec --ephemeral -s workspace-write -C "$root" "You are processing meeting notes for the research project '$project' (this repository; read PROJECT.md for context).
+
+Below is the newest entry from the owner's master meeting file, which may cover several projects. Lines about other projects usually start with that project's name.
+
+1. Create docs/meetings.md if it does not exist, with the header '# Meeting log' and one line: 'Extracted by the agent from the owner's master meeting notes after each meeting. Edit the master, not this file.'
+2. Append a section for this entry: its '## ' header verbatim, then only the lines relevant to '$project' (if nothing names a project, include everything), lightly cleaned but not rewritten, then an 'Action items' list with three sublists: 'Owner owes', 'Others owe', 'Next steps'. Infer items only from the notes; do not invent.
+3. Do not modify any other file. Do not commit.
+4. Then print to stdout, in plain prose, no metaphors: 'Decisions:' with bullets, 'You owe:' with bullets, 'They owe:' with bullets, 'Next steps:' with bullets. Nothing else.
+
+Entry:
+$entry" 2>/dev/null | sed '/^\s*$/d' )
+
+  # 4. commit the extracted log in the project
+  ( cd "$root" && git add docs/meetings.md 2>/dev/null && { git diff --cached --quiet || git -c commit.gpgsign=false commit -q -m "Log meeting notes $(date +%Y-%m-%d)"; } ) || true
+}
+
+# dispatch: `mtg done` -> _mtg_done; anything else -> new entry with optional label
 mtg() {
+  if [[ "${1:-}" == done ]]; then _mtg_done; return; fi
   local label="${1:-}" root="$PWD"
   while [[ "$root" != / && ! -f "$root/PROJECT.md" ]]; do root="${root:h}"; done
   _mtg_ensure_master
@@ -150,7 +200,7 @@ lines = open(path).read().splitlines(keepends=True)
 idx = next((i for i, l in enumerate(lines) if l.startswith("## ")), len(lines))
 lines[idx:idx] = [header + "\n", "\n", "\n"]
 open(path, "w").write("".join(lines))
-print(idx + 2)  # 1-based line number of the blank line under the header
+print(idx + 2)
 PY
   )
   nvim "+${line}" "+startinsert" "$MEETINGS_FILE"

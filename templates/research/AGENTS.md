@@ -18,7 +18,9 @@ next step unless told to.
 - `MEETINGS.md` is mine: notes from meetings with my supervisor and collaborators,
   across all my projects (it is a link to one master file). Read it when I refer to a
   meeting or a request from someone; entries about this project start a line with the
-  project name. Never write in it.
+  project name. Never write in it. `docs/meetings.md` is the agent-extracted log of the
+  entries about this project (written by `mtg done`); you may append to it, and it is
+  where you look up what was asked for.
 - Files listed under "Hands off" are edited only by me.
 - When writing anything mathematical, add a comment stating the equation or
   the reference it implements. If I ask for an explanation, explain the math,
