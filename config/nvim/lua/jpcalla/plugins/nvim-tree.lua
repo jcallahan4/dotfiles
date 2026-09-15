@@ -9,6 +9,10 @@ return {
     vim.g.loaded_netrwPlugin = 1
 
     nvimtree.setup({
+      -- follow the (tab-local) working directory, so a tab opened on ~/notes/meetings
+      -- shows that directory and the project tab keeps showing the project
+      sync_root_with_cwd = true,
+      respect_buf_cwd = false,
       view = {
         width = 35,
         relativenumber = true,
@@ -39,6 +43,12 @@ return {
       },
       filters = {
         custom = { ".DS_Store" },
+      },
+      -- macOS refuses fs watchers on privacy-protected folders under ~/Library
+      -- (EPERM on AddressBook etc.); skip watching them.
+      filesystem_watchers = {
+        enable = true,
+        ignore_dirs = { "/Library/", "node_modules", ".venv", ".git" },
       },
       git = {
         ignore = false,

@@ -12,6 +12,14 @@ One paragraph: the claim this project exists to test.
 1. Claim. Supporting experiment(s): `experiments/NNN-...`. Status: untested / supported / refuted.
 2. ...
 
+## Deadlines
+
+One per line, nearest first. `goodmorning` reads these.
+
+| Date | What |
+|---|---|
+| YYYY-MM-DD | (e.g. AISTATS submission) |
+
 ## Open questions
 
 - Things you don't know yet that could change the thesis.

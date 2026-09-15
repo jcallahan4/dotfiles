@@ -29,7 +29,7 @@ The leader key is Space.
 
 | Keys | Action |
 |---|---|
-| `Space h` | Close the current file and show the dashboard. Neovim stays open. Use `:bd!` first if you want to discard unsaved changes. |
+| `Space h` | In a secondary tab, such as the meeting notes that `mtg` opens, save and close the tab and return to the project tab. Otherwise close the current file and show the dashboard. Neovim stays open. |
 | `Space e e` | Toggle the file tree. `Space e f` reveals the current file. |
 | `Space g D` | Show the diff of the last commit. This is the agent's last step. |
 | `Space g d` | Show the diff of the working tree against HEAD. |

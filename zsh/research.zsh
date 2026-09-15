@@ -128,18 +128,27 @@ newexp() {
 
 # _open_in_nvim FILE [LINE] [insert]: open FILE in the bench's Neovim pane if we are in a
 # tmux window that has one (and jump the cursor there); otherwise run nvim right here.
+# A 4th argument "tab" opens the file in a new Neovim tab whose working directory is the
+# file's directory (:tcd), so Telescope and the file tree work there; <leader>h closes
+# that tab and returns to the project tab with its own directory intact.
 _open_in_nvim() {
-  local file="$1" line="${2:-1}" mode="${3:-}" pane
+  local file="$1" line="${2:-1}" mode="${3:-}" tab="${4:-}" pane
+  local dir="${file:h}"
   if [[ -n "$TMUX" ]]; then
     pane="$(tmux list-panes -F '#{pane_id} #{pane_current_command}' | awk '$2 == "nvim" {print $1; exit}')"
     if [[ -n "$pane" ]]; then
-      tmux send-keys -t "$pane" Escape ":edit ${file:q}" Enter ":${line}" Enter
+      if [[ "$tab" == tab ]]; then
+        tmux send-keys -t "$pane" Escape ":tabnew ${file:q} | tcd ${dir:q} | ${line}" Enter
+      else
+        tmux send-keys -t "$pane" Escape ":edit ${file:q} | ${line}" Enter
+      fi
       [[ "$mode" == insert ]] && tmux send-keys -t "$pane" "A"
       tmux select-pane -t "$pane"
       return
     fi
   fi
-  if [[ "$mode" == insert ]]; then nvim "+${line}" "+startinsert" "$file"; else nvim "+${line}" "$file"; fi
+  local cmds=("+${line}"); [[ "$tab" == tab ]] && cmds+=("+tcd ${dir}")
+  if [[ "$mode" == insert ]]; then nvim "${cmds[@]}" "+startinsert" "$file"; else nvim "${cmds[@]}" "$file"; fi
 }
 
 _mtg_ensure_dir() { mkdir -p "$MEETINGS_DIR"; }
@@ -198,7 +207,7 @@ open(path, "w").write("".join(lines))
 print(idx + 2)
 PY
   )
-  _open_in_nvim "$file" "$line" insert
+  _open_in_nvim "$file" "$line" insert tab
 }
 
 _mtg_done() {  # _mtg_done PERSON
@@ -306,3 +315,97 @@ implement() {
   _codex_in_pane code "$brief"
 }
 alias impl=implement
+
+# --- start and end of day ---------------------------------------------------------
+# _projects: every directory under ~/Desktop (depth 1) with a PROJECT.md
+_projects() { local d; for d in ~/Desktop/*/PROJECT.md(N); do print -r -- "${d:h}"; done }
+
+# goodnight: end of day, inside a project. Snapshots the project (commits, runs, running
+# jobs, spec state), has Codex (chore profile, read-only) write a short day log entry to
+# docs/daylog.md and print it, commits that, then opens NOTES.md at a new dated entry with
+# "Done:" and "Tomorrow, start with:" for you to fill in.
+goodnight() {
+  local root; root="$(_mtg_project_root)" || { echo "goodnight: run inside a project (no PROJECT.md found)" >&2; return 1; }
+  local codex_bin="${CODEX_BIN:-$HOME/.local/bin/codex}"; [[ -x "$codex_bin" ]] || codex_bin="$(command -v codex)"
+  local since; since="$(date +%Y-%m-%dT06:00)"
+  local ctx; ctx="$("$HOME/dotfiles/bin/project-context" "$root" --since "$since")"
+  echo "==> summarizing today in ${root:t}"
+  local summary
+  summary="$(cd "$root" && "$codex_bin" exec -p chore --ephemeral -s read-only -C "$root" "Write today's entry for the project day log from the snapshot below. Plain prose, no metaphors, second person is fine. Format exactly:
+
+## $(date +%Y-%m-%d)
+
+**Changed:** one to three sentences on what the commits did (from the commit messages and changed files).
+**Runs:** which runs finished (with their headline numbers) or are still going; 'none' if none.
+**State:** one sentence on where the newest experiment stands relative to its plan.
+**Open:** bullets for uncommitted changes, running processes, or action items owed; omit if none.
+**Suggested first step tomorrow:** one sentence, the most concrete next action from the spec's plan or the open items.
+
+Print only the entry. Do not read or modify files beyond what the snapshot gives you.
+
+Snapshot:
+$ctx" 2>/dev/null)"
+  [[ -n "$summary" ]] || { echo "goodnight: no summary produced" >&2; return 1; }
+  print -r -- "$summary"
+  # prepend to docs/daylog.md (newest first) and commit
+  ( cd "$root" && mkdir -p docs && {
+      [[ -f docs/daylog.md ]] || printf '# Day log\n\nWritten by the agent at the end of each day (`goodnight`) from the project snapshot. Newest first. Your own notes are in NOTES.md.\n\n' > docs/daylog.md
+      DAYLOG_ENTRY="$summary" python3 - "$root/docs/daylog.md" << 'PY'
+import sys, os
+path = sys.argv[1]; entry = os.environ["DAYLOG_ENTRY"].strip() + "\n\n"
+lines = open(path).read().splitlines(keepends=True)
+idx = next((i for i, l in enumerate(lines) if l.startswith("## ")), len(lines))
+lines[idx:idx] = [entry]
+open(path, "w").write("".join(lines))
+PY
+    } && git add docs/daylog.md && { git diff --cached --quiet || git -c commit.gpgsign=false commit -q -m "Day log $(date +%Y-%m-%d)"; } ) 2>/dev/null || true
+  # your entry in NOTES.md
+  local notes="$root/NOTES.md"; [[ -f "$notes" ]] || printf '# Owner notes\n\n' > "$notes"
+  local line
+  line=$(python3 - "$notes" << 'PY'
+import sys, datetime
+path = sys.argv[1]
+lines = open(path).read().splitlines(keepends=True)
+idx = next((i for i, l in enumerate(lines) if l.startswith("## ")), len(lines))
+entry = [f"## {datetime.date.today().isoformat()}\n", "\n", "Done: \n", "\n", "Tomorrow, start with: \n", "\n"]
+lines[idx:idx] = entry
+open(path, "w").write("".join(lines))
+print(idx + 3)
+PY
+  )
+  echo; echo "==> your turn: fill in Done and 'Tomorrow, start with' (that line is what goodmorning reads)"
+  _open_in_nvim "$notes" "$line" insert
+}
+
+# goodmorning: start of day, from anywhere. For every project under ~/Desktop with a
+# PROJECT.md: deadlines, overnight changes (commits, finished runs, still-running jobs),
+# your "Tomorrow, start with" line, and owed action items. Codex (chore profile) prints a
+# short brief ending in one command to run; you are asked whether to open that project.
+goodmorning() {
+  local codex_bin="${CODEX_BIN:-$HOME/.local/bin/codex}"; [[ -x "$codex_bin" ]] || codex_bin="$(command -v codex)"
+  local since; since="$(date -v-1d +%Y-%m-%dT17:00)"
+  local ctx="" p
+  for p in $(_projects); do ctx+="$("$HOME/dotfiles/bin/project-context" "$p" --since "$since")"$'\n\n---\n\n'; done
+  [[ -n "$ctx" ]] || { echo "goodmorning: no projects with PROJECT.md under ~/Desktop" >&2; return 1; }
+  echo "==> good morning. Reading $(( $(_projects | wc -l) )) projects..."
+  local brief
+  brief="$(cd ~/Desktop && "$codex_bin" exec -p chore --ephemeral -s read-only --skip-git-repo-check -C ~/Desktop "It is $(date '+%A %Y-%m-%d'). Below are snapshots of my research projects (changes since $since). Write my morning brief. Plain prose, no metaphors, no filler, at most 25 lines. Format exactly:
+
+Deadlines: one line per deadline across all projects, nearest first, as 'N days: what (project)'. 'none recorded' if none.
+Overnight: for each project with activity since the snapshot time: commits (count and gist), runs that finished with headline numbers, jobs still running. For finished runs, give the review commands: 'cd <path> && just since <newest tag> && just report' and 'read experiments/<newest>/SPEC.md Results'. Skip projects with no activity.
+Left off: each project's 'Tomorrow, start with' line from its newest note if present, else its day log's suggested first step, else 'no note'.
+Owed: action items I owe, with project names. Omit if none.
+Start here: ONE sentence naming the project and the first action, then on its own line the exact command: cd <path> && bench   (append '&& implement NNN' if there is a clear experiment to continue).
+
+Snapshots:
+$ctx" 2>/dev/null)"
+  [[ -n "$brief" ]] || { echo "goodmorning: no brief produced" >&2; return 1; }
+  print -r -- "$brief"
+  # offer to open the project named in the Start here command
+  local target; target="$(print -r -- "$brief" | grep -oE 'cd [^ &]+' | tail -1 | sed 's/^cd //')"
+  target="${target/#\~/$HOME}"
+  if [[ -n "$target" && -d "$target" ]]; then
+    echo; read -q "REPLY?open ${target:t} in bench? [y/N] " || { echo; return 0; }
+    echo; cd "$target" && bench
+  fi
+}

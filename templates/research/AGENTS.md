@@ -18,7 +18,7 @@ next step unless told to.
 - `meetings/` links to my meeting notes, one file per person (`meetings/jason.md`,
   `meetings/tommie.md`, ...), across all my projects. Read them when I refer to a meeting
   or to something an advisor asked for; entries about this project start a line with the
-  project name. Never write in them. `docs/meetings.md` is the agent-extracted log of the
+  project name. Never write in them. `docs/daylog.md` is the agent-written end-of-day log (`goodnight`); you may read it and append to it. `docs/meetings.md` is the agent-extracted log of the
   entries about this project (written by `mtg done <person>`); you may append to it.
 - Files listed under "Hands off" are edited only by me.
 - When writing anything mathematical, add a comment stating the equation or

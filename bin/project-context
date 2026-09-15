@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+"""project-context [DIR] [--since ISO]: print a markdown snapshot of a research project
+for the goodnight / goodmorning commands: deadlines, latest owner notes and day log,
+commits and changed files since a time, runs that finished or are in progress, running
+processes and tmux panes, and action items owed. Read-only."""
+from __future__ import annotations
+
+import json
+import os
+import re
+import subprocess
+import sys
+from datetime import datetime, timedelta
+from pathlib import Path
+
+
+def sh(*a, cwd=None):
+    try:
+        return subprocess.run(a, cwd=cwd, capture_output=True, text=True, check=False).stdout.strip()
+    except OSError:
+        return ""
+
+
+def section(path: Path, heading: str) -> str:
+    """Text under '## heading' in a markdown file, up to the next '## '."""
+    if not path.exists():
+        return ""
+    lines = path.read_text(errors="replace").splitlines()
+    out, on = [], False
+    for l in lines:
+        if l.startswith("## "):
+            if on:
+                break
+            on = l[3:].strip().lower().startswith(heading.lower())
+            continue
+        if on:
+            out.append(l)
+    return "\n".join(out).strip()
+
+
+def first_entry(path: Path) -> str:
+    """The newest '## ' entry of a newest-first notes file (header included)."""
+    if not path.exists():
+        return ""
+    lines = path.read_text(errors="replace").splitlines()
+    starts = [i for i, l in enumerate(lines) if l.startswith("## ")]
+    if not starts:
+        return ""
+    a = starts[0]
+    b = starts[1] if len(starts) > 1 else len(lines)
+    return "\n".join(lines[a:b]).strip()
+
+
+def main() -> None:
+    args = sys.argv[1:]
+    since = None
+    if "--since" in args:
+        i = args.index("--since")
+        since = args[i + 1]
+        del args[i : i + 2]
+    root = Path(args[0] if args else ".").resolve()
+    name = root.name
+    if since is None:
+        since = (datetime.now() - timedelta(hours=18)).isoformat(timespec="minutes")
+    since_dt = datetime.fromisoformat(since)
+
+    out = [f"# Project: {name}", f"Path: {root}", f"Snapshot: {datetime.now().isoformat(timespec='minutes')}  (changes since {since})", ""]
+
+    thesis = section(root / "PROJECT.md", "Thesis")
+    if thesis:
+        out += ["## Thesis (from PROJECT.md)", thesis[:600], ""]
+    dl = section(root / "PROJECT.md", "Deadlines")
+    out += ["## Deadlines (from PROJECT.md)", dl or "(none recorded)", ""]
+
+    notes = first_entry(root / "NOTES.md")
+    out += ["## Newest owner note (NOTES.md)", notes or "(none)", ""]
+    daylog = first_entry(root / "docs" / "daylog.md")
+    out += ["## Newest day log (docs/daylog.md, agent-written)", daylog or "(none)", ""]
+
+    # newest experiment spec: plan + results
+    exps = sorted(p for p in (root / "experiments").glob("[0-9][0-9][0-9]-*") if p.is_dir()) if (root / "experiments").exists() else []
+    if exps:
+        spec = exps[-1] / "SPEC.md"
+        out += [f"## Newest experiment: {exps[-1].name}"]
+        plan = section(spec, "Plan")
+        res = section(spec, "Results")
+        out += ["Plan:", plan or "(none)", "", "Results:", (res[:800] if res else "(none yet)"), ""]
+
+    # git
+    if (root / ".git").exists() or sh("git", "rev-parse", "--git-dir", cwd=root):
+        log = sh("git", "log", f"--since={since}", "--format=%h %cs %s", cwd=root)
+        out += ["## Commits since then", log or "(none)", ""]
+        stat = sh("git", "diff", "--stat", f"HEAD@{{{since}}}", "HEAD", cwd=root) if log else ""
+        if stat:
+            out += ["## Files changed in those commits", stat, ""]
+        status = sh("git", "status", "--short", cwd=root)
+        out += ["## Uncommitted changes", status or "(clean)", ""]
+        tags = sh("git", "tag", "--sort=-creatordate", cwd=root).splitlines()[:5]
+        out += ["## Recent tags (newest first)", "\n".join(tags) or "(none)", ""]
+
+    # runs finished / in progress
+    runs = root / "runs"
+    fin, prog = [], []
+    if runs.exists():
+        for d in sorted(runs.iterdir()):
+            if not d.is_dir():
+                continue
+            s = d / "summary.json"
+            m = d / "meta.json"
+            if s.exists():
+                mt = datetime.fromtimestamp(s.stat().st_mtime)
+                if mt >= since_dt:
+                    try:
+                        summ = json.loads(s.read_text())
+                    except Exception:
+                        summ = {}
+                    keys = ", ".join(f"{k}={v}" for k, v in list(summ.items())[:6] if not isinstance(v, (dict, list)))
+                    fin.append(f"- {d.name}  finished {mt.isoformat(timespec='minutes')}  {keys}")
+            elif m.exists() or any(d.iterdir()):
+                mt = max((f.stat().st_mtime for f in d.rglob("*") if f.is_file()), default=d.stat().st_mtime)
+                prog.append(f"- {d.name}  last write {datetime.fromtimestamp(mt).isoformat(timespec='minutes')}  (no summary.json yet)")
+    out += ["## Runs finished since then", "\n".join(fin) or "(none)", "", "## Runs without a summary (in progress or crashed)", "\n".join(prog[-10:]) or "(none)", ""]
+
+    # processes and tmux panes touching this project
+    procs = []
+    for line in sh("ps", "-axo", "pid,etime,command").splitlines()[1:]:
+        if str(root) in line or f"-m {name}" in line or f"/{name}/" in line:
+            if re.search(r"python|uv run|latexmk|sbatch|srun|codex", line) and "project-context" not in line:
+                procs.append("- " + line.strip()[:160])
+    out += ["## Processes referencing this project", "\n".join(procs) or "(none)", ""]
+    panes = sh("tmux", "list-panes", "-a", "-F", "#{session_name}:#{window_index}.#{pane_index} #{pane_current_command} #{pane_current_path}")
+    panes = [p for p in panes.splitlines() if str(root) in p]
+    out += ["## tmux panes in this project", "\n".join("- " + p for p in panes) or "(none)", ""]
+
+    # meetings: owner owes
+    ml = root / "docs" / "meetings.md"
+    if ml.exists():
+        txt = ml.read_text(errors="replace")
+        owes = re.findall(r"- Owner owes\n((?:  - .*\n?)+)", txt)
+        items = [l.strip()[2:] for blk in owes for l in blk.splitlines() if l.strip().startswith("- ")]
+        out += ["## Action items I owe (docs/meetings.md)", "\n".join("- " + i for i in items[-10:]) or "(none)", ""]
+
+    print("\n".join(out))
+
+
+if __name__ == "__main__":
+    main()

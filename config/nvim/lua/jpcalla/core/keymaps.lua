@@ -28,8 +28,15 @@ keymap.set("n", "<leader>tn", "<cmd>tabn<CR>", { desc = "Go to next tab" }) --  
 keymap.set("n", "<leader>tp", "<cmd>tabp<CR>", { desc = "Go to previous tab" }) --  go to previous tab
 keymap.set("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "Open current buffer in new tab" }) --  move current buffer to new tab
 
--- close the current file and return to the dashboard (nvim stays open)
+-- <leader>h: leave what you're looking at. In a secondary tab (e.g. meeting notes opened
+-- by `mtg`, which has its own working directory) close the tab and return to the project
+-- tab. Otherwise close the file and show the dashboard. Neovim stays open either way.
 keymap.set("n", "<leader>h", function()
-  vim.cmd("silent! bdelete")
-  vim.cmd("Alpha")
-end, { desc = "Close file, show dashboard" })
+  if #vim.api.nvim_list_tabpages() > 1 then
+    vim.cmd("silent! write")
+    vim.cmd("tabclose")
+  else
+    vim.cmd("silent! bdelete")
+    vim.cmd("Alpha")
+  end
+end, { desc = "Close tab or file, back to project / dashboard" })

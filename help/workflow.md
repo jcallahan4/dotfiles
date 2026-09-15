@@ -48,6 +48,13 @@ newexp first-question
 bench
 ```
 
+## Start and end of day
+
+`goodmorning` prints the brief (deadlines, overnight results, where you left off, one
+command to start) and offers to open the project. `goodnight` has the agent log the day
+to `docs/daylog.md`, then you write two lines in `NOTES.md`: what you did, and what to
+start with tomorrow. That second line is what tomorrow's `goodmorning` shows you.
+
 ## Sessions
 
 Start a new Codex session for each experiment, when the topic changes, and each morning.
