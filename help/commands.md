@@ -13,6 +13,7 @@ These come from `~/dotfiles` and work in any directory.
 | `mtg <person> ["label"]` | Adds a dated header to `~/notes/meetings/<person>.md` and opens it there in insert mode, in the bench's Neovim pane if there is one. `mtg` alone lists people and their latest entry. Inside a project it also creates the gitignored `meetings/` link. |
 | `mtg new <person>` | Creates `~/notes/meetings/<person>.md` with the standard header and no entry. |
 | `mtg done <person>` | After a meeting, inside a project: commits `~/notes`, has Codex copy that person's newest entry lines about this project into `docs/meetings.md` with action items, commits that, and prints decisions, what you owe, what they owe, and next steps. |
+| `think [NNN \| "topic"]` | Opens a read-only Codex session for discussion: it reads `PROJECT.md` (and experiment NNN's spec), argues with you, and proposes experiments without writing code. Say "summarize" for one-line decisions to paste into your files. |
 | `help <topic>` | Shows this reference. Topics: `workflow`, `commands`, `keys`, `git`, `plots`. |
 | `skim-place [file.pdf]` | Moves the Skim window for that PDF to the second display, or the right half of one display. `just watch` and `just paper` call it. |
 
@@ -51,7 +52,8 @@ Run these inside a project.
 
 | Command | What it does |
 |---|---|
-| `codex` | Starts an interactive session. This runs in the right pane of `bench`. |
+| `codex` | Starts an interactive session with the default model (GPT-6-Astra, medium reasoning). This runs in the right pane of `bench`. `/model` changes model or reasoning inside a session; `/status` shows token use. |
+| `codex -p sol` | Same, on GPT-5.6-Sol at high reasoning, for when the Astra budget runs low. `-p chore` is GPT-5.6-Luna, used by `mtg done`. |
 | `codex resume` | Resumes a previous session. |
 | `codex review` | Reviews a diff without a conversation. |
 | `codex remote-control start --json` | Prints the daemon status. `ontheroad` calls this. |

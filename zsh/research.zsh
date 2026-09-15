@@ -226,7 +226,7 @@ PY
   # 3. agent extracts this project's lines + action items into docs/meetings.md
   local codex_bin="${CODEX_BIN:-$HOME/.local/bin/codex}"; [[ -x "$codex_bin" ]] || codex_bin="$(command -v codex)"
   echo "==> extracting $person's notes for '$project' into docs/meetings.md"
-  ( cd "$root" && "$codex_bin" exec --ephemeral -s workspace-write -C "$root" "You are processing meeting notes for the research project '$project' (this repository; read PROJECT.md for context). The meeting was with $person.
+  ( cd "$root" && "$codex_bin" exec -p chore --ephemeral -s workspace-write -C "$root" "You are processing meeting notes for the research project '$project' (this repository; read PROJECT.md for context). The meeting was with $person.
 
 Below is the newest entry from the owner's meeting file for $person, which may cover several projects. Lines about other projects usually start with that project's name.
 
@@ -249,4 +249,22 @@ mtg() {
     new)   [[ -n "${2:-}" ]] || { echo "usage: mtg new <person>" >&2; return 1; }; _mtg_create "$2" ;;
     *)     _mtg_new "${(L)1}" "${2:-}" ;;
   esac
+}
+
+# think: a discussion session, not a coding one. Codex opens read-only (it cannot edit
+# files) with a briefing to read PROJECT.md and the current spec, argue with you, and
+# propose experiments without writing code. Write the conclusions yourself into
+# PROJECT.md, SPEC.md, or NOTES.md afterwards.
+#   think                    read PROJECT.md
+#   think 003                also read experiments/003-*/SPEC.md (and its Results)
+#   think "some topic"       free-form topic
+think() {
+  local codex_bin="${CODEX_BIN:-$HOME/.local/bin/codex}"; [[ -x "$codex_bin" ]] || codex_bin="$(command -v codex)"
+  local arg="${1:-}" spec="" topic=""
+  if [[ "$arg" == <-> ]]; then
+    spec="$(ls -d experiments/$(printf '%03d' "$arg")-* 2>/dev/null | head -1)"
+    [[ -n "$spec" ]] && spec="$spec/SPEC.md"
+  elif [[ -n "$arg" ]]; then topic="$arg"; fi
+  local brief="This is a discussion session, not a coding session. You cannot edit files here and should not propose code. Read PROJECT.md${spec:+ and $spec (including its Results section if present)} first. I want to think out loud about${topic:+ $topic:} the research, the experiments, and what results mean. Your job: ask clarifying questions, argue against my ideas before agreeing with them, point out what an experiment would and would not show, and propose alternatives when mine are weak. Keep replies short and plain. When I say 'summarize', print the decisions and open questions as one line each so I can paste them into my files."
+  "$codex_bin" --sandbox read-only "$brief"
 }

@@ -48,6 +48,15 @@ newexp first-question
 bench
 ```
 
+## Sessions
+
+Start a new Codex session for each experiment, when the topic changes, and each morning.
+The files are the memory: `AGENTS.md` makes every session read `PROJECT.md` and the spec,
+so a first prompt is one line ("Working on experiments/003. Next is plan item 2."). If
+you are re-explaining something, it belongs in a file. Use `think` for discussion
+sessions; write the conclusions into your files yourself. One coding session per repo at
+a time.
+
 ## New project or new experiment
 
 Start a new project when the question is a new thesis that could become its own paper.
