@@ -125,7 +125,8 @@ newexp() {
 _mtg_ensure_dir() { mkdir -p "$MEETINGS_DIR"; }
 
 _mtg_file() {  # _mtg_file NAME -> path, created from the template if missing
-  local name="${(L)1}" f="$MEETINGS_DIR/$name.md"
+  local name="${(L)1}"
+  local f="$MEETINGS_DIR/$name.md"
   _mtg_ensure_dir
   [[ -f "$f" ]] || sed "s/{{PERSON}}/$name/g" "$_research_tpl/MEETINGS.md" > "$f"
   print -r -- "$f"
