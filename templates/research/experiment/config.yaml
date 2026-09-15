@@ -5,5 +5,5 @@ steps: 100000
 eval_every: 5000
 batch_size: 64        # tunable
 lr: 0.0003            # tunable
-device: cuda
+device: cpu             # cuda on the cluster, mps for the Mac GPU
 run_dir: runs/{{EXP_ID}}

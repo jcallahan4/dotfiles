@@ -46,16 +46,33 @@ startup() {
 def test_import():
     import $package  # noqa: F401
 PY
+  # config loader, train/report entry points, config test, justfile, CI, git hooks
+  for f in config.py train.py report.py; do
+    _research_render "$_research_tpl/src/$f" "src/$package/$f" PACKAGE="$package"
+  done
+  _research_render "$_research_tpl/src/test_config.py" tests/test_config.py PACKAGE="$package"
+  _research_render "$_research_tpl/justfile" justfile PACKAGE="$package"
+  mkdir -p .github/workflows .githooks
+  cp "$_research_tpl/github-workflows/test.yml" .github/workflows/test.yml
+  cp "$_research_tpl/githooks/pre-commit" .githooks/pre-commit && chmod +x .githooks/pre-commit
 
-  echo "==> dev tools + lock"
+  echo "==> dependencies + lock"
+  uv add pyyaml >/dev/null 2>&1
   uv add --dev pytest ruff >/dev/null 2>&1
+  echo "==> lint + test"
+  uv run ruff format . >/dev/null 2>&1 && uv run ruff check --fix . >/dev/null 2>&1 || true
   uv run pytest -q tests/ 2>&1 | tail -1
 
   echo "==> git"
   [[ -d .git ]] || git init -q
+  git config core.hooksPath .githooks
   git add -A && git commit -q -m "Scaffold $project (startup)" && git tag -f baseline >/dev/null
+
+  echo "==> smoke run (writes runs/smoke with the baseline git SHA)"
+  uv run python -m "$package.train" --config configs/smoke.yaml 2>&1 | tail -1
   echo
   echo "Project '$project' ready (package '$package'). Tagged 'baseline'."
+  echo "Pre-commit hook: ruff format+check, uv lock --check, gitleaks. 'just --list' for tasks."
   echo "Next: edit PROJECT.md, then 'newexp <name>' for the first experiment, then 'nic'."
 }
 

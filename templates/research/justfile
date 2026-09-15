@@ -1,0 +1,35 @@
+# Task runner. `just --list` shows recipes. Agents: use these, don't invent commands.
+set shell := ["zsh", "-cu"]
+pkg := "{{PACKAGE}}"
+
+default:
+    @just --list
+
+# Whole pipeline in under a minute. Run before anything long.
+smoke:
+    uv run python -m {{pkg}}.train --config configs/smoke.yaml
+
+# Run one experiment's config: `just run 003-huber-vs-mse`
+run exp:
+    uv run python -m {{pkg}}.train --config experiments/{{exp}}/config.yaml
+
+test:
+    uv run pytest -q
+
+lint:
+    uv run ruff format .
+    uv run ruff check --fix .
+
+# Table of every runs/*/summary.json
+report:
+    uv run python -m {{pkg}}.report runs/
+
+# Diff everything since a tag: `just since baseline`
+since tag:
+    git diff --stat {{tag}}..HEAD
+
+paper:
+    cd paper && latexmk -pdf -interaction=nonstopmode -halt-on-error paper.tex
+
+clean:
+    rm -rf .pytest_cache .ruff_cache runs/scratch runs/smoke

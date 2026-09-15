@@ -1,4 +1,17 @@
 
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# Pinned rule set so lint results don't change when ruff's defaults do.
+select = ["E", "F", "I", "UP", "B", "W"]
+ignore = ["E501"]  # formatter owns line length
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
 # ---- uv notes -------------------------------------------------------------
 # Add packages with `uv add <pkg>` (or `uv add --dev <pkg>` for tools), run
 # with `uv run ...`. For CUDA-specific PyTorch wheels, uncomment and pick the

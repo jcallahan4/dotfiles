@@ -9,6 +9,8 @@ build/
 runs/*
 !runs/**/summary.json
 !runs/**/metrics.csv
+!runs/**/config.json
+!runs/**/meta.json
 # editors / os
 .DS_Store
 .idea/

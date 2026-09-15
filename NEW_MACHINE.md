@@ -159,6 +159,17 @@ can `tail -f` it.
    configs/smoke.yaml, tests, baseline tag); `newexp <name>` adds a numbered
    experiment folder. Both are in `zsh/research.zsh`. Then `nic`.
 
+   Every scaffolded project also gets: a `justfile` (`just smoke|test|lint|run <exp>|report|since <tag>|paper`),
+   a plain git pre-commit hook in `.githooks/` (ruff format + check on staged files,
+   `uv lock --check`, no notebooks, gitleaks secrets scan; installed with
+   `git config core.hooksPath .githooks`), a GitHub Actions workflow that runs ruff and
+   pytest on every push, and `src/<pkg>/config.py` (dataclass config loaded from YAML
+   with CLI overrides; `start_run` writes `config.json` and `meta.json` with the git SHA
+   and lockfile hash into the run dir). `brew install just gitleaks` (in `install.sh`).
+   Ruff rules are pinned in `pyproject.toml` (E, F, I, UP, B, W) so lint does not drift
+   with ruff releases. Note: gitleaks allowlists AWS's documented example key, so test the
+   hook with a random `ghp_...` token, not `AKIAIOSFODNN7EXAMPLE`.
+
    Leaving the desk: `ontheroad` (in `zshrc_common`) starts Codex remote control if it
    is not running, prints the connection status, and runs `caffeinate` until Ctrl-C.
    `ontheroad status` / `ontheroad stop`. Remote control needs the standalone Codex

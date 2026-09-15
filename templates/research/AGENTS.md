@@ -34,7 +34,15 @@ next step unless told to.
 
 ## Running things
 
-- Use `uv run` for everything. Never activate or create environments by hand.
+- Use the `justfile` recipes (`just --list`): `just smoke`, `just test`, `just lint`,
+  `just run <exp>`, `just report`. Don't invent commands that a recipe already covers.
+- Use `uv run` for everything else. Never activate or create environments by hand.
+- A pre-commit hook formats and lints staged Python, checks `uv.lock`, and scans for
+  secrets. If it rewrites a file, the commit already includes the fix. Never bypass it
+  with `--no-verify`.
+- Every run starts with `start_run(cfg)` from `src/{{PACKAGE}}/config.py`, which writes
+  `config.json` and `meta.json` (git SHA, dirty flag, lockfile hash) into the run
+  directory, and ends by writing `summary.json`. Keep that pattern.
 - Before any run longer than a few minutes, run the smoke config
   (`configs/smoke.yaml`) and show me the result.
 - All outputs go under `runs/<experiment-id>/`. Never write results anywhere

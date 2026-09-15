@@ -1,0 +1,26 @@
+#!/bin/bash
+# Pre-commit: format, lint, lockfile check, secrets scan. Installed by `startup` via
+# `git config core.hooksPath .githooks`. Fast (<2 s) and never interactive.
+# Skip once with `git commit --no-verify`.
+set -e
+cd "$(git rev-parse --show-toplevel)"
+
+staged_py=$(git diff --cached --name-only --diff-filter=ACM -- '*.py')
+if [ -n "$staged_py" ]; then
+  uv run ruff format $staged_py
+  uv run ruff check --fix $staged_py
+  git add $staged_py
+fi
+
+if git diff --cached --name-only | grep -qE '^(pyproject\.toml|uv\.lock)$'; then
+  uv lock --check || { echo "uv.lock is out of date: run 'uv lock' and re-stage" >&2; exit 1; }
+fi
+
+if git diff --cached --name-only | grep -q '\.ipynb$'; then
+  echo "notebooks are not committed to this repo (scratch only); unstage or convert with jupytext" >&2
+  exit 1
+fi
+
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks git --staged --pre-commit --redact --no-banner 2>/dev/null || { echo "gitleaks found a possible secret in staged changes" >&2; exit 1; }
+fi
