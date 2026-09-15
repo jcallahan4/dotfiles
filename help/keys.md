@@ -18,6 +18,11 @@ prefix.
 
 The mouse also works. Click a pane, drag a border, or scroll.
 
+Scrolling enters copy mode. The status bar shows `[tmux]` and a yellow box with your
+position in the scrollback, such as `[5/11]`. The pane is read-only until you leave. Press
+`q` to exit, or scroll back to the bottom. In copy mode, `/` searches, `n` finds the next
+match, `v` starts a selection, and `y` copies it to the clipboard.
+
 ## Neovim
 
 The leader key is Space.
