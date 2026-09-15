@@ -15,6 +15,8 @@ next step unless told to.
 
 - Never modify another experiment's folder, `PROJECT.md`, or anything in
   `paper/` without being asked.
+- `MEETINGS.md` is mine: notes from meetings with my supervisor and collaborators. Read
+  it when I refer to a meeting or a request from someone. Never write in it.
 - Files listed under "Hands off" are edited only by me.
 - When writing anything mathematical, add a comment stating the equation or
   the reference it implements. If I ask for an explanation, explain the math,
@@ -107,6 +109,6 @@ Style (distilled from the Google developer documentation style guide):
 - Don't hedge with stacked qualifiers or pad with pleasantries. State
   uncertainty once, precisely: "I haven't verified X."
 
-`NOTES.md` files are mine. Do not write in them. Put your observations in the
+`NOTES.md` and `MEETINGS.md` are mine. Do not write in them. Put your observations in the
 results section of the experiment's `SPEC.md`. Keep reports short: what
 happened, what you changed, what you're unsure about. Don't restate the plan.

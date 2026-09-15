@@ -21,6 +21,7 @@ just watch <name>  # rerun on save; Skim shows the PDF
 
 ## Layout
 
+- `PROJECT.md`, `NOTES.md`, `MEETINGS.md` owner documents (thesis; run notes; meeting notes)
 - `src/{{PACKAGE}}/` shared library code
 - `experiments/NNN-name/` one folder per experiment: `SPEC.md`, `NOTES.md`, `config.yaml`
 - `figures/` one script per figure, output in `paper/figures/`

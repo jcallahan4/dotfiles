@@ -40,6 +40,7 @@ startup() {
   _research_render "$_research_tpl/PROJECT.md" PROJECT.md PROJECT="$project" PACKAGE="$package" DATE="$today"
   _research_render "$_research_tpl/AGENTS.md"  AGENTS.md  PROJECT="$project" PACKAGE="$package" DATE="$today"
   _research_render "$_research_tpl/README.md"   README.md  PROJECT="$project" PACKAGE="$package" DATE="$today"
+  cp "$_research_tpl/MEETINGS.md" MEETINGS.md
   _research_render "$_research_tpl/gitignore"   .gitignore PROJECT="$project" PACKAGE="$package"
   _research_render "$_research_tpl/configs-smoke.yaml" configs/smoke.yaml PACKAGE="$package"
   cat > tests/test_smoke.py << PY
@@ -107,4 +108,40 @@ newexp() {
   git add "$dir" 2>/dev/null && git commit -q -m "Add experiment $id-$name" 2>/dev/null || true
   echo "Created $dir"
   echo "Next: write $dir/SPEC.md before any code."
+}
+
+# mtg: take meeting notes. Adds a dated header to MEETINGS.md (newest first) and opens
+# Neovim at it. Inside a project (a directory with PROJECT.md up the tree) it uses that
+# project's MEETINGS.md; otherwise ~/Desktop/writing/meetings.md.
+#   mtg                 today's date
+#   mtg "with Kate"     today's date plus a label
+mtg() {
+  local label="${1:-}" root="$PWD" file
+  while [[ "$root" != / && ! -f "$root/PROJECT.md" ]]; do root="${root:h}"; done
+  if [[ -f "$root/PROJECT.md" ]]; then
+    file="$root/MEETINGS.md"
+    [[ -f "$file" ]] || cp "$_research_tpl/MEETINGS.md" "$file"
+  else
+    file="$HOME/Desktop/writing/meetings.md"
+    mkdir -p "${file:h}"
+    [[ -f "$file" ]] || printf '# Meetings\n\nPersonal meeting notes not tied to one project. Newest first.\n\n' > "$file"
+  fi
+  local header="## $(date +%Y-%m-%d)${label:+ $label}"
+  # insert after the intro block: first blank line that follows the first "## " or end of intro
+  python3 - "$file" "$header" << 'PY'
+import sys
+path, header = sys.argv[1], sys.argv[2]
+text = open(path).read()
+lines = text.splitlines(keepends=True)
+# insert before the first existing entry header, else at end
+idx = next((i for i, l in enumerate(lines) if l.startswith("## ")), len(lines))
+lines[idx:idx] = [header + "\n", "\n", "\n"]
+open(path, "w").write("".join(lines))
+print(idx + 2)
+PY
+  local line; line=$(python3 -c "
+import sys
+for i,l in enumerate(open('$file'),1):
+    if l.rstrip()=='''$header''': print(i+1); break")
+  nvim "+${line}" "+startinsert" "$file"
 }
