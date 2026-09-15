@@ -32,6 +32,7 @@ The leader key is Space.
 
 | Keys | Action |
 |---|---|
+| `:e` / `:e!` | Reload the file from disk. Reloads also happen on their own when the agent changes a file you have open and you have no unsaved edits. |
 | `Space h` | In a secondary tab, such as the meeting notes that `mtg` opens, save and close the tab and return to the project tab. Otherwise close the current file and show the dashboard. Neovim stays open. |
 | `Space e e` | Toggle the file tree. `Space e f` reveals the current file. |
 | `Space g D` | Show the diff of the last commit. This is the agent's last step. |

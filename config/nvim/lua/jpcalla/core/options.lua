@@ -57,3 +57,24 @@ opt.swapfile = false
 vim.cmd("filetype on")
 vim.cmd("filetype plugin on")
 vim.cmd("filetype indent on")
+
+-- Reload a buffer when the file changed on disk (an agent edited it) and the buffer has
+-- no unsaved changes. Checked when Neovim regains focus, when you enter the buffer, and
+-- after a short idle. tmux passes focus events (focus-events on), so switching panes
+-- into nvim triggers it. `:e!` still forces a reload over local edits.
+opt.autoread = true
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+  pattern = "*",
+  callback = function()
+    if vim.fn.mode() ~= "c" and vim.fn.getcmdwintype() == "" then
+      vim.cmd("checktime")
+    end
+  end,
+})
+vim.api.nvim_create_autocmd("FileChangedShellPost", {
+  pattern = "*",
+  callback = function()
+    vim.notify("Reloaded from disk: " .. vim.fn.expand("%:t"), vim.log.levels.INFO)
+  end,
+})
+opt.updatetime = 1000  -- CursorHold fires after 1 s idle (also the reload check)
