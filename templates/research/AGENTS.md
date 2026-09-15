@@ -15,8 +15,10 @@ next step unless told to.
 
 - Never modify another experiment's folder, `PROJECT.md`, or anything in
   `paper/` without being asked.
-- `MEETINGS.md` is mine: notes from meetings with my supervisor and collaborators. Read
-  it when I refer to a meeting or a request from someone. Never write in it.
+- `MEETINGS.md` is mine: notes from meetings with my supervisor and collaborators,
+  across all my projects (it is a link to one master file). Read it when I refer to a
+  meeting or a request from someone; entries about this project start a line with the
+  project name. Never write in it.
 - Files listed under "Hands off" are edited only by me.
 - When writing anything mathematical, add a comment stating the equation or
   the reference it implements. If I ask for an explanation, explain the math,
