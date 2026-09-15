@@ -70,7 +70,7 @@ PY
   git add -A && git commit -q -m "Scaffold $project (startup)" && git tag -f baseline >/dev/null
 
   echo "==> smoke run (writes runs/smoke with the baseline git SHA)"
-  uv run python -m "$package.train" --config configs/smoke.yaml 2>&1 | tail -1
+  uv run python -m "$package.run" --config configs/smoke.yaml 2>&1 | tail -1
   echo
   echo "Project '$project' ready (package '$package'). Tagged 'baseline'."
   echo "Pre-commit hook: ruff format+check, uv lock --check, gitleaks. 'just --list' for tasks."
