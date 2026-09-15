@@ -117,3 +117,21 @@ sys.exit(0 if status == "connected" else 1)'
   echo "Keeping the Mac awake (Ctrl-C to stop; the remote-control daemon keeps running)."
   caffeinate -i
 }
+
+# help: research workflow reference. `help` lists topics; `help workflow|commands|keys|git`.
+# Topics are markdown files in ~/dotfiles/help/, rendered with glow (falls back to less).
+help() {
+  local dir="$HOME/dotfiles/help" topic="${1:-}"
+  if [[ -z "$topic" ]]; then
+    echo "help <topic>   topics:"; for f in "$dir"/*.md(N); do printf '  %-10s %s\n' "${f:t:r}" "$(sed -n '1s/^# //p' "$f")"; done
+    return
+  fi
+  local file="$dir/$topic.md"
+  [[ -f "$file" ]] || { echo "help: no topic '$topic' (try: help)" >&2; return 1; }
+  {
+    cat "$file"
+    if [[ "$topic" == commands && -f justfile ]]; then
+      echo; echo "## This repo's justfile"; echo; echo '```'; just --list 2>/dev/null | tail -n +2; echo '```'
+    fi
+  } | if command -v glow >/dev/null 2>&1; then glow -p -w "$(( COLUMNS > 100 ? 100 : COLUMNS ))" -; else less -R; fi
+}

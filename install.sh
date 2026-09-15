@@ -42,7 +42,7 @@ if [ "$os" = "Darwin" ]; then
     echo "Homebrew not found. Install it from https://brew.sh, then re-run." >&2
     exit 1
   fi
-  brew install zsh neovim zoxide powerlevel10k tree-sitter tree-sitter-cli tmux just gitleaks \
+  brew install zsh neovim zoxide powerlevel10k tree-sitter tree-sitter-cli tmux just gitleaks glow \
     zsh-autosuggestions zsh-syntax-highlighting
 
   # Homebrew is not on PATH in a fresh zsh; install.sh only manages ~/.zshrc,

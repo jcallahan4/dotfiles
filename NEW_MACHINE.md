@@ -170,6 +170,11 @@ can `tail -f` it.
    with ruff releases. Note: gitleaks allowlists AWS's documented example key, so test the
    hook with a random `ghp_...` token, not `AKIAIOSFODNN7EXAMPLE`.
 
+   Forgot how any of this works: `help` in the shell lists topics; `help workflow`,
+   `help commands` (adds this repo's `just --list`), `help keys`, `help git` render
+   `~/dotfiles/help/*.md` with glow. In Neovim, `:Help <topic>` opens the same file in a
+   floating window (`q` closes). Edit the markdown files to change the help.
+
    Leaving the desk: `ontheroad` (in `zshrc_common`) starts Codex remote control if it
    is not running, prints the connection status, and runs `caffeinate` until Ctrl-C.
    `ontheroad status` / `ontheroad stop`. Remote control needs the standalone Codex
