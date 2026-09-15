@@ -27,3 +27,9 @@ keymap.set("n", "<leader>tx", "<cmd>tabclose<CR>", { desc = "Close current tab" 
 keymap.set("n", "<leader>tn", "<cmd>tabn<CR>", { desc = "Go to next tab" }) --  go to next tab
 keymap.set("n", "<leader>tp", "<cmd>tabp<CR>", { desc = "Go to previous tab" }) --  go to previous tab
 keymap.set("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "Open current buffer in new tab" }) --  move current buffer to new tab
+
+-- close the current file and return to the dashboard (nvim stays open)
+keymap.set("n", "<leader>h", function()
+  vim.cmd("silent! bdelete")
+  vim.cmd("Alpha")
+end, { desc = "Close file, show dashboard" })
