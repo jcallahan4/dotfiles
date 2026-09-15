@@ -137,7 +137,6 @@ lines = text.splitlines(keepends=True)
 idx = next((i for i, l in enumerate(lines) if l.startswith("## ")), len(lines))
 lines[idx:idx] = [header + "\n", "\n", "\n"]
 open(path, "w").write("".join(lines))
-print(idx + 2)
 PY
   local line; line=$(python3 -c "
 import sys
