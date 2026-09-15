@@ -9,6 +9,11 @@ fi
 # nvim setup
 alias vim="nvim"
 
+# Ctrl-D at an empty prompt would exit the shell and close its tmux pane. Ignore it;
+# type `exit` to leave a shell on purpose. (Ctrl-D still deletes a character when the
+# line is not empty.)
+setopt ignore_eof
+
 # history setup
 HISTFILE=$HOME/.zhistory
 SAVEHIST=1000
