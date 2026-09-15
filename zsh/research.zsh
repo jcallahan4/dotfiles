@@ -52,12 +52,13 @@ PY
   done
   _research_render "$_research_tpl/src/test_config.py" tests/test_config.py PACKAGE="$package"
   _research_render "$_research_tpl/justfile" justfile PACKAGE="$package"
+  mkdir -p figures paper/figures && cp "$_research_tpl/figures/example.py" figures/example.py
   mkdir -p .github/workflows .githooks
   cp "$_research_tpl/github-workflows/test.yml" .github/workflows/test.yml
   cp "$_research_tpl/githooks/pre-commit" .githooks/pre-commit && chmod +x .githooks/pre-commit
 
   echo "==> dependencies + lock"
-  uv add pyyaml >/dev/null 2>&1
+  uv add pyyaml matplotlib >/dev/null 2>&1
   uv add --dev pytest ruff >/dev/null 2>&1
   echo "==> lint + test"
   uv run ruff format . >/dev/null 2>&1 && uv run ruff check --fix . >/dev/null 2>&1 || true

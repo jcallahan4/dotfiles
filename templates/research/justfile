@@ -28,6 +28,19 @@ report:
 since tag:
     git diff --stat {{tag}}..HEAD
 
+# Render one figure script once: `just fig example` -> paper/figures/example.pdf
+fig name:
+    uv run python figures/{{name}}.py
+
+# Iterate on a figure: rerun on every save of figures/{{name}}.py, open the PDF in Skim once.
+watch name:
+    just fig {{name}} && open -a Skim paper/figures/{{name}}.pdf
+    watchexec -w figures/{{name}}.py -w src -- uv run python figures/{{name}}.py
+
+# Render every figure script.
+figs:
+    for f in figures/*.py; do uv run python "$f"; done
+
 paper:
     cd paper && latexmk -pdf -interaction=nonstopmode -halt-on-error paper.tex
 

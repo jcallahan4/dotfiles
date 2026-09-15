@@ -24,6 +24,9 @@ Run these inside a project. `just --list` shows the recipes that this repository
 | `just run <exp>` | Runs `src/<pkg>/run.py` with `experiments/<exp>/config.yaml`. The script computes whatever the experiment is: an EIG estimate, a sweep, a training loop. | The folder name, for example `001-posterior-calibration` |
 | `just report` | Prints a table of every `runs/*/summary.json`. | At least one completed run |
 | `just since <tag>` | Runs `git diff --stat <tag>..HEAD`. | A tag you created with `git tag <tag>` |
+| `just fig <name>` | Runs `figures/<name>.py`, which writes `paper/figures/<name>.pdf` and `.png`. | The script |
+| `just watch <name>` | Opens the PDF in Skim, then reruns the script every time you save it. Ctrl-C stops. | The script |
+| `just figs` | Renders every figure script. | |
 | `just paper` | Runs latexmk in `paper/`. | `paper/paper.tex` |
 | `just clean` | Removes caches and scratch runs. | Nothing |
 

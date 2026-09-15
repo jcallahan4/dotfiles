@@ -52,6 +52,15 @@ next step unless told to.
 - Do not launch a long run, submit a Slurm job, or use the GPU without
   explicit instruction.
 
+## Figures
+
+- Every figure is a script in `figures/<name>.py`, one figure per script, following
+  `figures/example.py`. It reads run outputs (`runs/<id>/summary.json` or other
+  artifacts), never hard-coded numbers, and writes `paper/figures/<name>.pdf` and `.png`.
+- When asked to plot something: write the script, run `just fig <name>`, report the
+  output path, and stop. The owner iterates on it in Neovim with `just watch <name>`.
+- Never produce plots inline, in notebooks, or in the terminal.
+
 ## Unattended runs
 
 While babysitting a run you may:
