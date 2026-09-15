@@ -44,7 +44,7 @@ mkdir proj && cd proj
 startup          # uv project, templates, hooks, CI, justfile, baseline tag
 # write PROJECT.md
 newexp first-question
-nic
+bench
 ```
 
 ## New project or new experiment

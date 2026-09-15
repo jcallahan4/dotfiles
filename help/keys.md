@@ -9,7 +9,7 @@ prefix.
 |---|---|
 | `h`, `j`, `k`, `l` | Move to the pane on the left, below, above, or right. |
 | `z` | Zoom the current pane to full screen. Press again to restore. |
-| `d` | Detach. Everything keeps running. `nic` reattaches. |
+| `d` | Detach. Everything keeps running. `bench` reattaches. |
 | `s` | Choose a session from a list. |
 | `\|` or `-` | Split to the right or below. |
 | `c` | Open a new window. |

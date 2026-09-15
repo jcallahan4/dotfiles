@@ -38,21 +38,21 @@ unset _plugin_prefix
 # eza setup (commented out for now)
 # alias "ls"="eza --icons=always --color=always --long --no-filesize --icons=always --no-time -G  --no-permissions --no-user"
 
-# nic: open (or reattach to) a tmux "cockpit" for the current project.
-#   nic            -> session named after $PWD. Layout:
+# bench: open (or reattach to) the tmux workbench for the current project.
+#   bench          -> session named after $PWD. Layout:
 #                        +-----------------+-----------+
 #                        |  nvim   (55%)   |   agent   |
 #                        +-----------------+   (45%)   |
 #                        |  shell  (20% h) |           |
 #                        +-----------------+-----------+
-#   nic myname     -> explicit session name
-#   NIC_AGENT=claude nic     -> use a different agent (default: codex)
-#   NIC_AGENT_WIDTH=35 nic   -> agent pane width in percent (default: 45)
-# Detach with prefix-d; `nic` again reattaches with everything still running.
-nic() {
+#   bench myname   -> explicit session name
+#   BENCH_AGENT=claude bench     -> use a different agent (default: codex)
+#   BENCH_AGENT_WIDTH=35 bench   -> agent pane width in percent (default: 45)
+# Detach with prefix-d; `bench` again reattaches with everything still running.
+bench() {
   local session_name="${1:-$(basename "$PWD")}"
   session_name="${session_name//./_}"
-  local agent="${NIC_AGENT:-codex}"
+  local agent="${BENCH_AGENT:-codex}"
 
   if [[ -n "$TMUX" ]]; then
     echo "Already in a tmux session. Detach first (prefix-d) or run from outside tmux."
@@ -63,7 +63,7 @@ nic() {
     return
   fi
 
-  local agent_width="${NIC_AGENT_WIDTH:-45}"
+  local agent_width="${BENCH_AGENT_WIDTH:-45}"
   tmux new-session -d -s "$session_name" -c "$PWD" -x "$(tput cols)" -y "$(tput lines)"
   # pane 1 = nvim (left). Split right for the agent (full height), then split the left
   # pane downward for the shell, so the shell sits only under nvim.
@@ -76,6 +76,7 @@ nic() {
   tmux select-pane -t "$nvim_pane"
   tmux attach-session -t "$session_name"
 }
+alias nic=bench   # old name, kept for muscle memory
 
 # research project scaffolding: startup, newexp
 [ -f ~/dotfiles/zsh/research.zsh ] && source ~/dotfiles/zsh/research.zsh

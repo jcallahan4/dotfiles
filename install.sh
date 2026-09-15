@@ -170,7 +170,7 @@ ln -sf ~/dotfiles/config/alacritty/* ~/.config/alacritty/
 ln -sf ~/dotfiles/zsh/p10k.zsh ~/.p10k.zsh
 ln -sf ~/dotfiles/wezterm/wezterm.lua ~/.wezterm.lua
 
-# tmux (the `nic` cockpit in zshrc_common depends on it).
+# tmux (the `bench` cockpit in zshrc_common depends on it).
 mkdir -p ~/.config/tmux
 ln -sf ~/dotfiles/tmux/tmux.conf ~/.config/tmux/tmux.conf
 

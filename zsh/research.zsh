@@ -74,7 +74,7 @@ PY
   echo
   echo "Project '$project' ready (package '$package'). Tagged 'baseline'."
   echo "Pre-commit hook: ruff format+check, uv lock --check, gitleaks. 'just --list' for tasks."
-  echo "Next: edit PROJECT.md, then 'newexp <name>' for the first experiment, then 'nic'."
+  echo "Next: edit PROJECT.md, then 'newexp <name>' for the first experiment, then 'bench'."
 }
 
 newexp() {
