@@ -7,11 +7,11 @@ default:
 
 # Whole pipeline in under a minute. Run before anything long.
 smoke:
-    uv run python -m {{pkg}}.train --config configs/smoke.yaml
+    uv run python -m {{pkg}}.run --config configs/smoke.yaml
 
 # Run one experiment's config: `just run 003-huber-vs-mse`
 run exp:
-    uv run python -m {{pkg}}.train --config experiments/{{exp}}/config.yaml
+    uv run python -m {{pkg}}.run --config experiments/{{exp}}/config.yaml
 
 test:
     uv run pytest -q

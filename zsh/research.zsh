@@ -47,7 +47,7 @@ def test_import():
     import $package  # noqa: F401
 PY
   # config loader, train/report entry points, config test, justfile, CI, git hooks
-  for f in config.py train.py report.py; do
+  for f in config.py run.py report.py; do
     _research_render "$_research_tpl/src/$f" "src/$package/$f" PACKAGE="$package"
   done
   _research_render "$_research_tpl/src/test_config.py" tests/test_config.py PACKAGE="$package"

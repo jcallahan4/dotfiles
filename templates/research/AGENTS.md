@@ -40,9 +40,11 @@ next step unless told to.
 - A pre-commit hook formats and lints staged Python, checks `uv.lock`, and scans for
   secrets. If it rewrites a file, the commit already includes the fix. Never bypass it
   with `--no-verify`.
-- Every run starts with `start_run(cfg)` from `src/{{PACKAGE}}/config.py`, which writes
-  `config.json` and `meta.json` (git SHA, dirty flag, lockfile hash) into the run
-  directory, and ends by writing `summary.json`. Keep that pattern.
+- `src/{{PACKAGE}}/run.py` is the experiment entry point (`just run <exp>`). Every
+  run starts with `start_run(cfg)` from `config.py`, which writes `config.json` and
+  `meta.json` (git SHA, dirty flag, lockfile hash) into the run directory, and ends by
+  writing `summary.json`. Keep that pattern whatever the experiment computes; add
+  typed fields to `Config` instead of reading raw dicts.
 - Before any run longer than a few minutes, run the smoke config
   (`configs/smoke.yaml`) and show me the result.
 - All outputs go under `runs/<experiment-id>/`. Never write results anywhere

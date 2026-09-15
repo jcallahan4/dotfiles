@@ -1,7 +1,7 @@
 """Run configuration: a dataclass with defaults, loaded from YAML, overridable from the
 command line. Every run writes its resolved config to <run_dir>/config.json.
 
-    uv run python -m {{PACKAGE}}.train --config configs/smoke.yaml --lr 1e-4
+    uv run python -m {{PACKAGE}}.run --config configs/smoke.yaml --n_samples 200
 """
 
 from __future__ import annotations
@@ -20,13 +20,14 @@ import yaml
 
 @dataclass
 class Config:
+    """Add a typed field for every setting an experiment needs. Delete the examples.
+    Mark values the agent may change during an unattended run with `# tunable`."""
+
     seed: int = 0
-    steps: int = 1000
-    eval_every: int = 100
-    batch_size: int = 64  # tunable
-    lr: float = 3e-4  # tunable
-    device: str = "cpu"  # "cuda" on the cluster, "mps" on a Mac GPU
     run_dir: str = "runs/scratch"
+    device: str = "cpu"  # "cuda" on the cluster, "mps" on a Mac GPU
+    n_samples: int = 1000  # example: Monte Carlo samples per estimate  # tunable
+    n_designs: int = 10  # example: candidate designs to evaluate
     # Free-form extras that don't deserve a field yet. Promote them when they stabilize.
     extra: dict[str, Any] = field(default_factory=dict)
 

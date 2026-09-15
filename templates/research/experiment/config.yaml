@@ -1,9 +1,7 @@
-# Config for {{EXP_ID}} {{EXP_NAME}}. Values marked "# tunable" may be adjusted by
-# the agent during an unattended run; everything else is fixed for this experiment.
+# Config for {{EXP_ID}} {{EXP_NAME}}. Values marked "# tunable" may be adjusted by the
+# agent during an unattended run; everything else is fixed for this experiment.
 seed: 0
-steps: 100000
-eval_every: 5000
-batch_size: 64        # tunable
-lr: 0.0003            # tunable
-device: cpu             # cuda on the cluster, mps for the Mac GPU
 run_dir: runs/{{EXP_ID}}
+device: cpu             # cuda on the cluster, mps for the Mac GPU
+n_samples: 10000        # tunable
+n_designs: 50

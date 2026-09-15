@@ -18,10 +18,10 @@ Run these inside a project. `just --list` shows the recipes that this repository
 
 | Recipe | What it does | Requires |
 |---|---|---|
-| `just smoke` | Runs the whole pipeline in under a minute. | Nothing |
+| `just smoke` | Runs `src/<pkg>/run.py` with `configs/smoke.yaml`: the whole pipeline in under a minute. | Nothing |
 | `just test` | Runs pytest. | Nothing |
 | `just lint` | Runs `ruff format` and `ruff check --fix`. | Nothing |
-| `just run <exp>` | Trains with `experiments/<exp>/config.yaml`. | The folder name, for example `001-posterior-calibration` |
+| `just run <exp>` | Runs `src/<pkg>/run.py` with `experiments/<exp>/config.yaml`. The script computes whatever the experiment is: an EIG estimate, a sweep, a training loop. | The folder name, for example `001-posterior-calibration` |
 | `just report` | Prints a table of every `runs/*/summary.json`. | At least one completed run |
 | `just since <tag>` | Runs `git diff --stat <tag>..HEAD`. | A tag you created with `git tag <tag>` |
 | `just paper` | Runs latexmk in `paper/`. | `paper/paper.tex` |
