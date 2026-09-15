@@ -11,8 +11,8 @@ runs/*
 !runs/**/metrics.csv
 !runs/**/config.json
 !runs/**/meta.json
-# meeting notes are a symlink to ~/notes/meetings.md, personal, not part of the repo
-MEETINGS.md
+# meeting notes: `meetings/` is a symlink to ~/notes/meetings/, personal, not part of the repo
+meetings
 # editors / os
 .DS_Store
 .idea/

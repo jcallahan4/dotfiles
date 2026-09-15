@@ -11,7 +11,7 @@ steps, and you read each step as a diff.
 | `PROJECT.md` | You | Write it on day one. Read it before you start an experiment. Edit one to three lines when a result changes a claim. By the end it holds the paper outline. |
 | `experiments/NNN-name/SPEC.md` | You, then the agent | Write the question, setup, success criterion, and plan before any code. The agent appends a Results section after a run. You add one verdict line. |
 | `experiments/NNN-name/NOTES.md` | You only | Write a few sentences after every run, in your own words. |
-| `MEETINGS.md` | You only | A link to `~/notes/meetings.md`, one file for all meetings across projects. Run `mtg` when a meeting starts and `mtg done` when it ends. Start a line with the project name when a meeting covers several. `mtg done` extracts this project's lines into `docs/meetings.md` and prints your action items. |
+| `meetings/<person>.md` | You only | A link to `~/notes/meetings/`, one file per advisor across all projects. Run `mtg <person>` when a meeting starts and `mtg done <person>` when it ends. Start a line with the project name when a meeting covers several. |
 | `AGENTS.md` | You | Rules the agent follows. Add files to the "Hands off" list as you write them. |
 | `runs/<id>/` | Scripts | `config.json`, `meta.json` (git SHA and lockfile hash), and `summary.json`. |
 

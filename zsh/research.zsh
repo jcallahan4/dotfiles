@@ -40,7 +40,7 @@ startup() {
   _research_render "$_research_tpl/PROJECT.md" PROJECT.md PROJECT="$project" PACKAGE="$package" DATE="$today"
   _research_render "$_research_tpl/AGENTS.md"  AGENTS.md  PROJECT="$project" PACKAGE="$package" DATE="$today"
   _research_render "$_research_tpl/README.md"   README.md  PROJECT="$project" PACKAGE="$package" DATE="$today"
-  _mtg_link "$PWD" || true   # MEETINGS.md -> ~/notes/meetings.md (gitignored)
+  _mtg_link "$PWD" || true   # meetings/ -> ~/notes/meetings/ (gitignored)
   _research_render "$_research_tpl/gitignore"   .gitignore PROJECT="$project" PACKAGE="$package"
   _research_render "$_research_tpl/configs-smoke.yaml" configs/smoke.yaml PACKAGE="$package"
   cat > tests/test_smoke.py << PY
@@ -110,90 +110,58 @@ newexp() {
   echo "Next: write $dir/SPEC.md before any code."
 }
 
-# mtg: meeting notes. One master file for all meetings, $MEETINGS_FILE
-# (default ~/notes/meetings.md). Every project gets a gitignored MEETINGS.md symlink to
-# it (created by `startup`, or by `mtg` on first use inside a project), so agents in any
-# project read the same notes. Adds a dated header (newest first) and opens Neovim there.
-#   mtg                 today's date
-#   mtg "with Kate"     today's date plus a label
+# mtg: meeting notes, one file per person in $MEETINGS_DIR (default ~/notes/meetings/).
+# Every project gets a gitignored `meetings/` symlink to that directory (created by
+# `startup`, or by `mtg` on first use inside a project), so agents in any project can read
+# every advisor's notes and know who said what.
+#   mtg                      list people and their latest entry
+#   mtg jason                add today's header to jason.md, open Neovim there
+#   mtg tommie "phone call"  same, with a label
+#   mtg done jason           after the meeting: commit ~/notes, extract this project's
+#                            lines + action items into docs/meetings.md, print todos
 # Inside an entry, start a line with the project name when a meeting covers several.
-: "${MEETINGS_FILE:=$HOME/notes/meetings.md}"
+: "${MEETINGS_DIR:=$HOME/notes/meetings}"
 
-_mtg_ensure_master() {
-  mkdir -p "${MEETINGS_FILE:h}"
-  [[ -f "$MEETINGS_FILE" ]] || cp "$_research_tpl/MEETINGS.md" "$MEETINGS_FILE"
+_mtg_ensure_dir() { mkdir -p "$MEETINGS_DIR"; }
+
+_mtg_file() {  # _mtg_file NAME -> path, created from the template if missing
+  local name="${(L)1}" f="$MEETINGS_DIR/$name.md"
+  _mtg_ensure_dir
+  [[ -f "$f" ]] || sed "s/{{PERSON}}/$name/g" "$_research_tpl/MEETINGS.md" > "$f"
+  print -r -- "$f"
 }
 
-# _mtg_link DIR: make DIR/MEETINGS.md a symlink to the master (no-op if it already is).
-_mtg_link() {
-  local dir="$1"
-  _mtg_ensure_master
-  [[ -L "$dir/MEETINGS.md" ]] && return 0
-  if [[ -f "$dir/MEETINGS.md" ]]; then
-    echo "mtg: $dir/MEETINGS.md is a regular file; append its contents to $MEETINGS_FILE and remove it, then rerun" >&2
-    return 1
-  fi
-  ln -s "$MEETINGS_FILE" "$dir/MEETINGS.md"
-}
-
-
-# mtg done: after a meeting. Commits ~/notes (making it a git repo on first use), then
-# asks Codex (non-interactive, sandboxed to this project) to copy the lines of the newest
-# entry that concern this project into docs/meetings.md with an action-item list, commits
-# that, and prints the decisions, your todos, their todos, and next steps.
-_mtg_done() {
+_mtg_project_root() {
   local root="$PWD"
   while [[ "$root" != / && ! -f "$root/PROJECT.md" ]]; do root="${root:h}"; done
-  [[ -f "$root/PROJECT.md" ]] || { echo "mtg done: run inside a project (no PROJECT.md found)" >&2; return 1; }
-  local project="${root:t}"
-  _mtg_ensure_master
-
-  # 1. commit the master notes
-  ( cd "${MEETINGS_FILE:h}" && { [[ -d .git ]] || git init -q; } \
-    && git add -A && { git diff --cached --quiet || git commit -q -m "Meeting notes $(date +%Y-%m-%d)"; } )
-
-  # 2. newest entry
-  local entry
-  entry=$(python3 - "$MEETINGS_FILE" << 'PY'
-import sys
-lines = open(sys.argv[1]).read().splitlines()
-starts = [i for i, l in enumerate(lines) if l.startswith("## ")]
-if not starts: sys.exit("no entries")
-a = starts[0]; b = starts[1] if len(starts) > 1 else len(lines)
-print("\n".join(lines[a:b]).strip())
-PY
-  )
-  [[ -n "$entry" ]] || return 1
-
-  # 3. agent: extract the project-relevant part + action items into docs/meetings.md
-  local codex_bin="${CODEX_BIN:-$HOME/.local/bin/codex}"; [[ -x "$codex_bin" ]] || codex_bin="$(command -v codex)"
-  echo "==> extracting notes for '$project' into docs/meetings.md"
-  ( cd "$root" && "$codex_bin" exec --ephemeral -s workspace-write -C "$root" "You are processing meeting notes for the research project '$project' (this repository; read PROJECT.md for context).
-
-Below is the newest entry from the owner's master meeting file, which may cover several projects. Lines about other projects usually start with that project's name.
-
-1. Create docs/meetings.md if it does not exist, with the header '# Meeting log' and one line: 'Extracted by the agent from the owner's master meeting notes after each meeting. Edit the master, not this file.'
-2. Append a section for this entry: its '## ' header verbatim, then only the lines relevant to '$project' (if nothing names a project, include everything), lightly cleaned but not rewritten, then an 'Action items' list with three sublists: 'Owner owes', 'Others owe', 'Next steps'. Infer items only from the notes; do not invent.
-3. Do not modify any other file. Do not commit.
-4. Then print to stdout, in plain prose, no metaphors: 'Decisions:' with bullets, 'You owe:' with bullets, 'They owe:' with bullets, 'Next steps:' with bullets. Nothing else.
-
-Entry:
-$entry" 2>/dev/null | sed '/^\s*$/d' )
-
-  # 4. commit the extracted log in the project
-  ( cd "$root" && git add docs/meetings.md 2>/dev/null && { git diff --cached --quiet || git -c commit.gpgsign=false commit -q -m "Log meeting notes $(date +%Y-%m-%d)"; } ) || true
+  [[ -f "$root/PROJECT.md" ]] && print -r -- "$root"
 }
 
-# dispatch: `mtg done` -> _mtg_done; anything else -> new entry with optional label
-mtg() {
-  if [[ "${1:-}" == done ]]; then _mtg_done; return; fi
-  local label="${1:-}" root="$PWD"
-  while [[ "$root" != / && ! -f "$root/PROJECT.md" ]]; do root="${root:h}"; done
-  _mtg_ensure_master
-  [[ -f "$root/PROJECT.md" ]] && _mtg_link "$root"
+_mtg_link() {  # _mtg_link DIR: DIR/meetings -> $MEETINGS_DIR
+  local dir="$1"; _mtg_ensure_dir
+  [[ -L "$dir/meetings" ]] && return 0
+  if [[ -e "$dir/meetings" ]]; then
+    echo "mtg: $dir/meetings exists and is not a link; move it aside and rerun" >&2; return 1
+  fi
+  ln -s "$MEETINGS_DIR" "$dir/meetings"
+}
+
+_mtg_list() {
+  _mtg_ensure_dir
+  local f last
+  for f in "$MEETINGS_DIR"/*.md(N); do
+    last=$(grep -m1 '^## ' "$f" | sed 's/^## //')
+    printf '  %-12s latest: %s\n' "${f:t:r}" "${last:-(none)}"
+  done
+  echo "usage: mtg <person> [label] | mtg done <person>"
+}
+
+_mtg_new() {  # _mtg_new PERSON [LABEL]
+  local person="$1" label="${2:-}" root file line
+  file="$(_mtg_file "$person")"
+  root="$(_mtg_project_root)"; [[ -n "$root" ]] && _mtg_link "$root"
   local header="## $(date +%Y-%m-%d)${label:+ $label}"
-  local line
-  line=$(MTG_HEADER="$header" python3 - "$MEETINGS_FILE" << 'PY'
+  line=$(MTG_HEADER="$header" python3 - "$file" << 'PY'
 import os, sys
 path = sys.argv[1]; header = os.environ["MTG_HEADER"]
 lines = open(path).read().splitlines(keepends=True)
@@ -203,5 +171,54 @@ open(path, "w").write("".join(lines))
 print(idx + 2)
 PY
   )
-  nvim "+${line}" "+startinsert" "$MEETINGS_FILE"
+  nvim "+${line}" "+startinsert" "$file"
+}
+
+_mtg_done() {  # _mtg_done PERSON
+  local person="$1" root project file entry
+  root="$(_mtg_project_root)" || { echo "mtg done: run inside a project (no PROJECT.md found)" >&2; return 1; }
+  project="${root:t}"
+  file="$(_mtg_file "$person")"
+  _mtg_link "$root" || true
+
+  # 1. commit the notes repo
+  ( cd "${MEETINGS_DIR:h}" && { [[ -d .git ]] || git init -q; } \
+    && git add -A && { git diff --cached --quiet || git commit -q -m "Meeting notes $(date +%Y-%m-%d) ($person)"; } )
+
+  # 2. newest entry for this person
+  entry=$(python3 - "$file" << 'PY'
+import sys
+lines = open(sys.argv[1]).read().splitlines()
+starts = [i for i, l in enumerate(lines) if l.startswith("## ")]
+if not starts: sys.exit("no entries")
+a = starts[0]; b = starts[1] if len(starts) > 1 else len(lines)
+print("\n".join(lines[a:b]).strip())
+PY
+  ) || return 1
+
+  # 3. agent extracts this project's lines + action items into docs/meetings.md
+  local codex_bin="${CODEX_BIN:-$HOME/.local/bin/codex}"; [[ -x "$codex_bin" ]] || codex_bin="$(command -v codex)"
+  echo "==> extracting $person's notes for '$project' into docs/meetings.md"
+  ( cd "$root" && "$codex_bin" exec --ephemeral -s workspace-write -C "$root" "You are processing meeting notes for the research project '$project' (this repository; read PROJECT.md for context). The meeting was with $person.
+
+Below is the newest entry from the owner's meeting file for $person, which may cover several projects. Lines about other projects usually start with that project's name.
+
+1. Create docs/meetings.md if it does not exist, with the header '# Meeting log' and one line: 'Extracted by the agent from the owner's meeting notes after each meeting. Edit the source files under meetings/, not this file.'
+2. Append a section for this entry: a header '## <date from the entry header> with $person<rest of the entry header, if any>', then only the lines relevant to '$project' (if nothing names a project, include everything), lightly cleaned but not rewritten, then an 'Action items' list with three sublists: 'Owner owes', '$person owes', 'Next steps'. Infer items only from the notes; do not invent.
+3. Do not modify any other file. Do not commit.
+4. Then print to stdout, in plain prose, no metaphors: 'Decisions:' with bullets, 'You owe:' with bullets, '${(C)person} owes:' with bullets, 'Next steps:' with bullets. Nothing else.
+
+Entry:
+$entry" 2>/dev/null | sed '/^\s*$/d' )
+
+  # 4. commit the log in the project
+  ( cd "$root" && git add docs/meetings.md 2>/dev/null && { git diff --cached --quiet || git -c commit.gpgsign=false commit -q -m "Log meeting with $person $(date +%Y-%m-%d)"; } ) || true
+}
+
+mtg() {
+  case "${1:-}" in
+    "")    _mtg_list ;;
+    done)  [[ -n "${2:-}" ]] || { echo "usage: mtg done <person>" >&2; return 1; }; _mtg_done "${(L)2}" ;;
+    *)     _mtg_new "${(L)1}" "${2:-}" ;;
+  esac
 }
