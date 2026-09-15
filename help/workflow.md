@@ -53,9 +53,10 @@ bench
 Start a new Codex session for each experiment, when the topic changes, and each morning.
 The files are the memory: `AGENTS.md` makes every session read `PROJECT.md` and the spec,
 so a first prompt is one line ("Working on experiments/003. Next is plan item 2."). If
-you are re-explaining something, it belongs in a file. Use `think` for discussion
-sessions; write the conclusions into your files yourself. One coding session per repo at
-a time.
+you are re-explaining something, it belongs in a file. Start sessions with `think`
+(discussion, Astra, read-only) or `implement` (coding, Sol); both open in the bench's
+agent pane and replace whatever session was there. Write the conclusions of a `think`
+session into your files yourself. One coding session per repo at a time.
 
 ## New project or new experiment
 
