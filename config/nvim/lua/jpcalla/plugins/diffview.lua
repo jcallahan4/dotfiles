@@ -7,8 +7,25 @@ return {
   dependencies = { "nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons" },
   cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewFileHistory", "DiffviewToggleFiles" },
   keys = {
-    { "<leader>gd", "<cmd>DiffviewOpen<CR>", desc = "Git diff: working tree vs HEAD" },
-    { "<leader>gD", "<cmd>DiffviewOpen HEAD~1<CR>", desc = "Git diff: last commit" },
+    {
+      "<leader>gd",
+      function()
+        pcall(vim.cmd, "DiffviewClose")
+        vim.cmd("DiffviewOpen")
+      end,
+      desc = "Git diff: working tree vs HEAD (uncommitted changes)",
+    },
+    -- HEAD~1..HEAD is exactly the last commit. (Bare "HEAD~1" would compare against the
+    -- working tree and mix in uncommitted files.) Close any open view first so a fresh
+    -- press always reflects the current HEAD.
+    {
+      "<leader>gD",
+      function()
+        pcall(vim.cmd, "DiffviewClose")
+        vim.cmd("DiffviewOpen HEAD~1..HEAD")
+      end,
+      desc = "Git diff: last commit",
+    },
     {
       "<leader>gr",
       function()
