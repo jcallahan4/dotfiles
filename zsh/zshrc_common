@@ -41,13 +41,13 @@ unset _plugin_prefix
 # nic: open (or reattach to) a tmux "cockpit" for the current project.
 #   nic            -> session named after $PWD. Layout:
 #                        +-----------------+-----------+
-#                        |  nvim   (60%)   |   agent   |
-#                        +-----------------+   (40%)   |
+#                        |  nvim   (55%)   |   agent   |
+#                        +-----------------+   (45%)   |
 #                        |  shell  (20% h) |           |
 #                        +-----------------+-----------+
 #   nic myname     -> explicit session name
 #   NIC_AGENT=claude nic     -> use a different agent (default: codex)
-#   NIC_AGENT_WIDTH=35 nic   -> agent pane width in percent (default: 40)
+#   NIC_AGENT_WIDTH=35 nic   -> agent pane width in percent (default: 45)
 # Detach with prefix-d; `nic` again reattaches with everything still running.
 nic() {
   local session_name="${1:-$(basename "$PWD")}"
@@ -63,7 +63,7 @@ nic() {
     return
   fi
 
-  local agent_width="${NIC_AGENT_WIDTH:-40}"
+  local agent_width="${NIC_AGENT_WIDTH:-45}"
   tmux new-session -d -s "$session_name" -c "$PWD" -x "$(tput cols)" -y "$(tput lines)"
   # pane 1 = nvim (left). Split right for the agent (full height), then split the left
   # pane downward for the shell, so the shell sits only under nvim.
