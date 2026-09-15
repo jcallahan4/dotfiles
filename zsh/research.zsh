@@ -115,6 +115,7 @@ newexp() {
 # `startup`, or by `mtg` on first use inside a project), so agents in any project can read
 # every advisor's notes and know who said what.
 #   mtg                      list people and their latest entry
+#   mtg new jason            create jason.md with the standard header (no entry)
 #   mtg jason                add today's header to jason.md, open Neovim there
 #   mtg tommie "phone call"  same, with a label
 #   mtg done jason           after the meeting: commit ~/notes, extract this project's
@@ -128,8 +129,14 @@ _mtg_file() {  # _mtg_file NAME -> path, created from the template if missing
   local name="${(L)1}"
   local f="$MEETINGS_DIR/$name.md"
   _mtg_ensure_dir
-  [[ -f "$f" ]] || sed "s/{{PERSON}}/$name/g" "$_research_tpl/MEETINGS.md" > "$f"
+  [[ -f "$f" ]] || sed "s/{{PERSON}}/${(C)name}/g; s/{{person}}/$name/g" "$_research_tpl/MEETINGS.md" > "$f"
   print -r -- "$f"
+}
+
+_mtg_create() {  # mtg new PERSON: create the file (no entry), report the path
+  local name="${(L)1}" f
+  [[ -f "$MEETINGS_DIR/$name.md" ]] && { echo "exists: $MEETINGS_DIR/$name.md"; return 0; }
+  f="$(_mtg_file "$name")"; echo "created $f"
 }
 
 _mtg_project_root() {
@@ -154,7 +161,7 @@ _mtg_list() {
     last=$(grep -m1 '^## ' "$f" | sed 's/^## //')
     printf '  %-12s latest: %s\n' "${f:t:r}" "${last:-(none)}"
   done
-  echo "usage: mtg <person> [label] | mtg done <person>"
+  echo "usage: mtg <person> [label] | mtg new <person> | mtg done <person>"
 }
 
 _mtg_new() {  # _mtg_new PERSON [LABEL]
@@ -220,6 +227,7 @@ mtg() {
   case "${1:-}" in
     "")    _mtg_list ;;
     done)  [[ -n "${2:-}" ]] || { echo "usage: mtg done <person>" >&2; return 1; }; _mtg_done "${(L)2}" ;;
+    new)   [[ -n "${2:-}" ]] || { echo "usage: mtg new <person>" >&2; return 1; }; _mtg_create "$2" ;;
     *)     _mtg_new "${(L)1}" "${2:-}" ;;
   esac
 }
