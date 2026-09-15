@@ -1,56 +1,63 @@
 # Commands
 
-## Shell (from ~/dotfiles, available everywhere)
+## Shell commands
 
-| Command | What |
+These come from `~/dotfiles` and work in any directory.
+
+| Command | What it does |
 |---|---|
-| `startup` | scaffold the current empty directory as a research project (uv, templates, hooks, CI, justfile, `baseline` tag) |
-| `newexp <name>` | next numbered `experiments/NNN-name/` with SPEC, NOTES, config (copied from the previous experiment) |
-| `nic` | tmux cockpit for this directory: nvim left, agent right, shell below; reattaches if it exists. `NIC_AGENT=claude nic` |
-| `ontheroad` | start/check Codex remote control, print status, keep the Mac awake (Ctrl-C to stop). `ontheroad status`, `ontheroad stop` |
-| `help <topic>` | this. Topics: `workflow`, `commands`, `keys`, `git` |
+| `startup` | Scaffolds the current empty directory as a research project: uv project, templates, pre-commit hook, CI workflow, justfile, and a `baseline` tag. |
+| `newexp <name>` | Creates the next numbered `experiments/NNN-name/` folder with `SPEC.md`, `NOTES.md`, and a `config.yaml` copied from the previous experiment. |
+| `nic` | Opens a tmux session for this directory with Neovim on the left, the agent on the right, and a shell below. Reattaches if the session exists. Set `NIC_AGENT=claude` to use Claude Code. |
+| `ontheroad` | Starts Codex remote control if it is not running, prints the connection status, and keeps the Mac awake until you press Ctrl-C. Use `ontheroad status` or `ontheroad stop` for those actions alone. |
+| `help <topic>` | Shows this reference. Topics: `workflow`, `commands`, `keys`, `git`. |
 
-## just (inside a project; `just --list` shows what this repo has)
+## just recipes
 
-| Recipe | What | Needs |
+Run these inside a project. `just --list` shows the recipes that this repository has.
+
+| Recipe | What it does | Requires |
 |---|---|---|
-| `just smoke` | whole pipeline in under a minute | nothing |
-| `just test` | pytest | nothing |
-| `just lint` | ruff format + check | nothing |
-| `just run <exp>` | train on `experiments/<exp>/config.yaml` | the folder name, e.g. `001-posterior-calibration` |
-| `just report` | table of every `runs/*/summary.json` | at least one run |
-| `just since <tag>` | `git diff --stat <tag>..HEAD` | a tag you made with `git tag <tag>` |
-| `just paper` | latexmk in `paper/` | a `paper/paper.tex` |
-| `just clean` | remove caches and scratch runs | nothing |
+| `just smoke` | Runs the whole pipeline in under a minute. | Nothing |
+| `just test` | Runs pytest. | Nothing |
+| `just lint` | Runs `ruff format` and `ruff check --fix`. | Nothing |
+| `just run <exp>` | Trains with `experiments/<exp>/config.yaml`. | The folder name, for example `001-posterior-calibration` |
+| `just report` | Prints a table of every `runs/*/summary.json`. | At least one completed run |
+| `just since <tag>` | Runs `git diff --stat <tag>..HEAD`. | A tag you created with `git tag <tag>` |
+| `just paper` | Runs latexmk in `paper/`. | `paper/paper.tex` |
+| `just clean` | Removes caches and scratch runs. | Nothing |
 
-## uv (inside a project)
+## uv commands
+
+Run these inside a project.
 
 | Command | Conda equivalent |
 |---|---|
-| `uv add pkg` / `uv add --dev pkg` | `conda install pkg` (also records it in pyproject + lock) |
-| `uv remove pkg` | |
-| `uv run <cmd>` | activate, then run (no activate step exists) |
-| `uv sync` | after pulling changes to the lockfile |
-| `uv python pin 3.13` | change this project's Python |
-| `uv lock --upgrade-package torch` | deliberately bump one version |
+| `uv add <pkg>` or `uv add --dev <pkg>` | `conda install <pkg>`. Also records the package in `pyproject.toml` and `uv.lock`. |
+| `uv remove <pkg>` | `conda remove <pkg>` |
+| `uv run <command>` | Activate the environment, then run the command. There is no separate activate step. |
+| `uv sync` | Recreate the environment after the lockfile changes. |
+| `uv python pin 3.13` | Change this project's Python version. |
+| `uv lock --upgrade-package torch` | Upgrade one package deliberately. |
 
-## Codex
+## Codex commands
 
-| Command | What |
+| Command | What it does |
 |---|---|
-| `codex` | interactive session (the right pane of `nic`) |
-| `codex resume` | pick up a previous session |
-| `codex review` | non-interactive review of a diff |
-| `codex remote-control start --json` | daemon status (what `ontheroad` calls) |
-| `codex remote-control pair` | pairing code for the phone |
+| `codex` | Starts an interactive session. This runs in the right pane of `nic`. |
+| `codex resume` | Resumes a previous session. |
+| `codex review` | Reviews a diff without a conversation. |
+| `codex remote-control start --json` | Prints the daemon status. `ontheroad` calls this. |
+| `codex remote-control pair` | Prints a pairing code for the phone app. |
 
-## Pre-commit hook (automatic)
+## Pre-commit hook
 
-On every commit: ruff format + check on staged Python (fixes are re-staged), `uv lock
---check` if pyproject/lock changed, refuses `.ipynb`, gitleaks secrets scan. Never
-`--no-verify`.
+The hook runs on every commit. It formats and lints staged Python files and re-stages
+the fixes, checks `uv.lock` when `pyproject.toml` or `uv.lock` changed, refuses `.ipynb`
+files, and scans staged changes for secrets with gitleaks. Do not use `--no-verify`.
 
 ## Machine notes
 
-Behind Zscaler: `SSL_CERT_FILE`, `CODEX_CA_CERTIFICATE`, `UV_SYSTEM_CERTS=1` are set in
-`~/.zshrc.local` and must point at the Sandia bundle. Details: `~/dotfiles/NEW_MACHINE.md`.
+This Mac is behind Zscaler. `SSL_CERT_FILE`, `CODEX_CA_CERTIFICATE`, and
+`UV_SYSTEM_CERTS=1` are set in `~/.zshrc.local` and point at the Sandia certificate
+bundle. See `~/dotfiles/NEW_MACHINE.md` for details.

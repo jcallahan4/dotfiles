@@ -1,42 +1,48 @@
 # Keys
 
-## tmux (prefix = F12, sent by the keyboard from FN+Space; Ctrl-Space also works)
+## tmux
 
-| Prefix then | Action |
+The prefix is F12. Your keyboard sends F12 from FN+Space. Ctrl-Space also works as a
+prefix.
+
+| Prefix, then | Action |
 |---|---|
-| `h` `j` `k` `l` | move between panes |
-| `z` | zoom current pane full screen / unzoom |
-| `d` | detach (everything keeps running; `nic` reattaches) |
-| `s` | pick a session |
-| `\|` / `-` | split right / below |
-| `c` | new window |
-| `[` | copy mode (vi keys; `v` select, `y` copy to clipboard, `q` quit) |
-| `r` | reload tmux config |
+| `h`, `j`, `k`, `l` | Move to the pane on the left, below, above, or right. |
+| `z` | Zoom the current pane to full screen. Press again to restore. |
+| `d` | Detach. Everything keeps running. `nic` reattaches. |
+| `s` | Choose a session from a list. |
+| `\|` or `-` | Split to the right or below. |
+| `c` | Open a new window. |
+| `[` | Enter copy mode. Use `v` to select, `y` to copy to the clipboard, and `q` to exit. |
+| `r` | Reload the tmux configuration. |
 
-Mouse works: click a pane, drag a border, scroll.
+The mouse also works. Click a pane, drag a border, or scroll.
 
-## Neovim (leader = Space)
+## Neovim
+
+The leader key is Space.
 
 | Keys | Action |
 |---|---|
-| `Space e e` | file tree toggle (`Space e f` reveal current file) |
-| `Space g D` | diff of the last commit (the agent's last step) |
-| `Space g d` | diff working tree vs HEAD |
-| `Space g r` | diff a range; type a tag like `exp-001` or `baseline` |
-| `Space g h` / `Space g H` | history of this file / whole repo |
-| `Space g c` | close diff view |
-| `Space f f` / `Space f s` | find file / grep (Telescope) |
-| `Space s v` / `Space s h` | split vertical / horizontal |
-| `Space v c` / `Space v s` | vimtex compile / forward search |
-| `Space v Q` / `Space v q` | open / close LaTeX quickfix |
+| `Space e e` | Toggle the file tree. `Space e f` reveals the current file. |
+| `Space g D` | Show the diff of the last commit. This is the agent's last step. |
+| `Space g d` | Show the diff of the working tree against HEAD. |
+| `Space g r` | Show the diff of a range. Type a tag such as `exp-001` or `baseline`. |
+| `Space g h` or `Space g H` | Show the history of this file or of the whole repository. |
+| `Space g c` | Close the diff view. |
+| `Space f f` or `Space f s` | Find a file or search file contents with Telescope. |
+| `Space s v` or `Space s h` | Split the window vertically or horizontally. |
+| `Space v c` or `Space v s` | Compile the LaTeX document or forward-search in the PDF. |
+| `Space v Q` or `Space v q` | Open or close the LaTeX quickfix list. |
 
-Inside diffview: `Tab` / `Shift-Tab` next / previous file.
+In the diff view, `Tab` and `Shift-Tab` move to the next or previous file.
 
 ## Codex prompt
 
-`Shift+Enter` inserts a newline; `Enter` sends.
+`Shift+Enter` inserts a newline. `Enter` sends the prompt.
 
-## Ghostty
+## Ghostty and Finder
 
-`Cmd+Shift+,` reload config. `Cmd+T` tab, `Cmd+N` window. Finder: double-click a `.tex`
-or `.py` opens it in nvim in a Ghostty window.
+`Cmd+Shift+,` reloads the Ghostty configuration. `Cmd+T` opens a tab and `Cmd+N` opens a
+window. In Finder, double-click a `.tex` or `.py` file to open it in Neovim in a Ghostty
+window.

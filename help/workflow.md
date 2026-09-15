@@ -1,50 +1,63 @@
 # Research workflow
 
-One repo per paper-scale question. One folder per experiment. You write the spec and the
-notes; the agent writes code in small steps you read as diffs.
+Use one repository for each question that can become a paper. Inside it, use one folder
+for each experiment. You write the spec and the notes. The agent writes code in small
+steps, and you read each step as a diff.
 
-## Files and who owns them
+## Files and owners
 
-| File | Owner | When |
+| File | Owner | When you use it |
 |---|---|---|
-| `PROJECT.md` | you | written on day one; read before every experiment; edited 1-3 lines when a result changes a claim; ends up holding the paper outline |
-| `experiments/NNN-name/SPEC.md` | you, then agent | you write question / setup / what would convince me / plan **before code**; agent appends **Results** after a run; you add one verdict line |
-| `experiments/NNN-name/NOTES.md` | you only | a few sentences after every run, in your words |
-| `AGENTS.md` | you | rules the agent follows; add files to "Hands off" as you write them |
-| `runs/<id>/` | scripts | `config.json`, `meta.json` (git SHA), `summary.json` |
+| `PROJECT.md` | You | Write it on day one. Read it before you start an experiment. Edit one to three lines when a result changes a claim. By the end it holds the paper outline. |
+| `experiments/NNN-name/SPEC.md` | You, then the agent | Write the question, setup, success criterion, and plan before any code. The agent appends a Results section after a run. You add one verdict line. |
+| `experiments/NNN-name/NOTES.md` | You only | Write a few sentences after every run, in your own words. |
+| `AGENTS.md` | You | Rules the agent follows. Add files to the "Hands off" list as you write them. |
+| `runs/<id>/` | Scripts | `config.json`, `meta.json` (git SHA and lockfile hash), and `summary.json`. |
 
 ## The loop
 
-1. `newexp name`, write the SPEC (20 min).
-2. Prompt the agent for **one** change. It edits, the hook lints, it commits, it stops.
-3. Read the diff: `Space g D` in Neovim. Read the math line by line, skim the plumbing.
-4. Repeat 2-3. Write pieces yourself when that is faster than explaining.
-5. `just test`, `just smoke` before anything long.
-6. `git tag exp-NNN`, then `just run NNN-name 2>&1 | tee runs/NNN/train.log`.
-7. Tell the agent to babysit under the "Unattended runs" rules; `Ctrl-Space d` or `F12 d`
-   to detach; `ontheroad` if leaving.
-8. Morning: `just since exp-NNN`, `just report`, `Space g r` with the tag, then read the
-   Results in SPEC. Never read the transcript first.
-9. Write NOTES. Update PROJECT.md only if a claim changed. `git push`.
+1. Run `newexp <name>` and write the spec. Plan for 20 minutes.
+2. Ask the agent for one change. It edits, the pre-commit hook lints, it commits, and it
+   stops.
+3. Read the diff with `Space g D` in Neovim. Read the math line by line. Skim the
+   plumbing.
+4. Repeat steps 2 and 3. Write code yourself when that is faster than explaining it.
+5. Run `just test` and `just smoke` before any long run.
+6. Tag the commit, then start the run:
 
-## New project
+   ```
+   git tag exp-NNN
+   just run NNN-name 2>&1 | tee runs/NNN/train.log
+   ```
+
+7. Tell the agent to monitor the run under the "Unattended runs" rules. Detach with
+   `F12 d` or `Ctrl-Space d`. Run `ontheroad` if you are leaving.
+8. The next morning, run `just since exp-NNN` and `just report`, then open `Space g r`
+   with the tag, then read the Results section in the spec. Read the agent transcript
+   last, if at all.
+9. Write your notes. Update `PROJECT.md` only if a claim changed. Run `git push`.
+
+## Start a new project
 
 ```
-mkdir proj && cd proj && startup     # uv project, templates, hooks, CI, justfile, tag baseline
+mkdir proj && cd proj
+startup          # uv project, templates, hooks, CI, justfile, baseline tag
 # write PROJECT.md
 newexp first-question
 nic
 ```
 
-## When to make a new project vs a new experiment
+## New project or new experiment
 
-New project = a new thesis that could become its own paper. New experiment = a question
-that serves an existing claim in `PROJECT.md`. When unsure, it is an experiment.
+Start a new project when the question is a new thesis that could become its own paper.
+Start a new experiment when the question serves a claim that already exists in
+`PROJECT.md`. If you are unsure, start an experiment.
 
 ## Unattended runs
 
-The agent may restart on crash, fix plumbing crashes, and adjust values marked
-`# tunable`. It may not change method code under `src/`, change metrics or seeds, or
-start another experiment. It appends Results to the SPEC and stops.
+The agent can restart a crashed run, fix crashes in plumbing code, and change values
+marked `# tunable`. It cannot change method code under `src/`, change metrics or seeds,
+or start another experiment. When the run ends, it appends a Results section to the spec
+and stops.
 
-More: `help commands`, `help keys`, `help git`.
+See also `help commands`, `help keys`, and `help git`.

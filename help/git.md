@@ -1,39 +1,40 @@
-# Git, just enough
+# Git basics
 
-The agent commits for you after every change. You type four things.
+The agent commits after every change. You type four commands.
 
-| You type | When | What it does |
+| Command | When | What it does |
 |---|---|---|
-| `git tag exp-003` | before a long run | names the current commit so you can diff against it later |
-| `just since exp-003` | the morning after | which files changed since the tag |
-| `git push` | end of day | copies your commits to GitHub (backup) |
-| `git status` | when unsure | shows what is modified and uncommitted; safe, changes nothing |
+| `git tag exp-003` | Before a long run | Names the current commit so you can compare against it later. |
+| `just since exp-003` | The next morning | Lists the files that changed since the tag. |
+| `git push` | End of day | Copies your commits to GitHub as a backup. |
+| `git status` | When you are unsure | Shows modified and uncommitted files. It changes nothing. |
 
-## Words
+## Terms
 
-- **commit**: a saved snapshot of all files, with a message. Each has an ID like `a1b2c3d`.
-- **tag**: a permanent name for one commit. Does not move. `git tag` lists them.
-- **branch**: a movable name for "the latest commit on this line of work." You work on
-  one branch. `distributional_boed` happens to be on `codex/iqn-gate1`; that is fine.
-- **HEAD**: the commit you are on right now.
-- **remote / origin**: the copy on GitHub.
-- **push / pull**: send your commits up / bring GitHub's commits down.
+- **Commit**: a saved snapshot of all files with a message. Each commit has an ID such as
+  `a1b2c3d`.
+- **Tag**: a permanent name for one commit. It does not move. `git tag` lists tags.
+- **Branch**: a movable name for the latest commit on a line of work. You work on one
+  branch. The `distributional_boed` repository is on `codex/iqn-gate1`, which is fine.
+- **HEAD**: the commit you are on now.
+- **Remote** or **origin**: the copy of the repository on GitHub.
+- **Push** and **pull**: send your commits to GitHub, or bring GitHub's commits to you.
 
-## Things that are always safe
+## Safe commands
 
-`git status`, `git log --oneline`, `git diff`, `git tag`, `git push` (without flags),
-opening diffview in Neovim.
+These commands change nothing: `git status`, `git log --oneline`, `git diff`, `git tag`,
+`git push` without flags, and the diff view in Neovim.
 
-## Things to stop and ask about
+## Commands to stop and ask about
 
-Anything with `--force` or `-f` (except `git tag -f`, which only moves a label). `git
-reset --hard`. `git rebase`. `git push` that is refused with "rejected". If an agent
-suggests one of these, ask it to explain the current state first and do nothing until it
-does. Nothing is lost by waiting.
+Stop before you run any command with `--force` or `-f`, except `git tag -f`, which only
+moves a label. Stop before `git reset --hard` and `git rebase`. Stop if `git push` is
+rejected. If an agent suggests one of these, ask it to explain the current state first,
+and change nothing until it does. Waiting loses nothing.
 
 ## If something looks wrong
 
-1. `git status` and `git log --oneline -5`. Read them.
-2. Ask the agent: "explain the git state; do not change anything."
-3. Uncommitted edits you want to throw away on one file: `git checkout -- path/to/file`.
-   Committed work is never lost by that.
+1. Run `git status` and `git log --oneline -5`, and read the output.
+2. Ask the agent to explain the git state without changing anything.
+3. To discard uncommitted edits to one file, run `git checkout -- path/to/file`. This
+   never affects committed work.
