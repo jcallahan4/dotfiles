@@ -10,7 +10,7 @@ These come from `~/dotfiles` and work in any directory.
 | `newexp <name>` | Creates the next numbered `experiments/NNN-name/` folder with `SPEC.md`, `NOTES.md`, and a `config.yaml` copied from the previous experiment. |
 | `bench` | Opens a tmux session for this directory: Neovim top left, a shell under it, and the agent in a full-height pane on the right (45% wide). Reattaches if the session exists. `BENCH_AGENT=claude bench` uses Claude Code; `BENCH_AGENT_WIDTH=35 bench` changes the agent width. |
 | `ontheroad` | Starts Codex remote control if it is not running, prints the connection status, and keeps the Mac awake until you press Ctrl-C. Use `ontheroad status` or `ontheroad stop` for those actions alone. |
-| `mtg <person> ["label"]` | Adds a dated header to `~/notes/meetings/<person>.md` and opens Neovim there in insert mode. `mtg` alone lists people and their latest entry. Inside a project it also creates the gitignored `meetings/` link. |
+| `mtg <person> ["label"]` | Adds a dated header to `~/notes/meetings/<person>.md` and opens it there in insert mode, in the bench's Neovim pane if there is one. `mtg` alone lists people and their latest entry. Inside a project it also creates the gitignored `meetings/` link. |
 | `mtg new <person>` | Creates `~/notes/meetings/<person>.md` with the standard header and no entry. |
 | `mtg done <person>` | After a meeting, inside a project: commits `~/notes`, has Codex copy that person's newest entry lines about this project into `docs/meetings.md` with action items, commits that, and prints decisions, what you owe, what they owe, and next steps. |
 | `help <topic>` | Shows this reference. Topics: `workflow`, `commands`, `keys`, `git`, `plots`. |
