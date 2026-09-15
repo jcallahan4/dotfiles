@@ -135,3 +135,6 @@ help() {
     fi
   } | if command -v glow >/dev/null 2>&1; then glow -p -w "$(( COLUMNS > 100 ? 100 : COLUMNS ))" -; else less -R; fi
 }
+
+# small scripts tracked in the dotfiles (skim-place, ...)
+export PATH="$HOME/dotfiles/bin:$PATH"

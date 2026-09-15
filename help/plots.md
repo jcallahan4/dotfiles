@@ -6,8 +6,8 @@ Every figure is a script. Notebooks are not used.
 
 1. Ask the agent: "Plot the EIG per design from run 003." It writes `figures/<name>.py`
    from the `figures/example.py` pattern, runs it, and reports the path of the PDF.
-2. In the shell pane, run `just watch <name>`. Skim opens the PDF in its own window.
-   Put that window on your second display or beside Ghostty.
+2. In the shell pane, run `just watch <name>`. Skim opens the PDF and `skim-place`
+   moves it to your second display, or to the right half of a single display.
 3. Open `figures/<name>.py` in Neovim. Change a line. Save. The script reruns and Skim
    reloads within about two seconds.
 4. If you need more room, press `F12 z` to zoom Neovim. Press it again to restore the

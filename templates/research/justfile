@@ -35,6 +35,7 @@ fig name:
 # Iterate on a figure: rerun on every save of figures/{{name}}.py, open the PDF in Skim once.
 watch name:
     just fig {{name}} && open -a Skim paper/figures/{{name}}.pdf
+    -sleep 1 && command -v skim-place >/dev/null && skim-place paper/figures/{{name}}.pdf
     watchexec -w figures/{{name}}.py -w src -- uv run python figures/{{name}}.py
 
 # Render every figure script.
@@ -43,6 +44,7 @@ figs:
 
 paper:
     cd paper && latexmk -pdf -interaction=nonstopmode -halt-on-error paper.tex
+    -open -a Skim paper/paper.pdf && sleep 1 && command -v skim-place >/dev/null && skim-place paper/paper.pdf
 
 clean:
     rm -rf .pytest_cache .ruff_cache runs/scratch runs/smoke

@@ -1,0 +1,30 @@
+#!/bin/bash
+# skim-place [file.pdf]
+# Move the Skim window showing file.pdf (or the front window) to the secondary display,
+# filling it. With one display, use the right half. Uses Skim's own AppleScript
+# dictionary, so no Accessibility permission is needed. Called by `just watch`.
+set -e
+name="${1:+$(basename "$1")}"
+read -r x y w h < <(osascript -l JavaScript -e '
+ObjC.import("AppKit");
+const screens = $.NSScreen.screens;
+const main = screens.objectAtIndex(0).frame;
+let target = null;
+for (let i = 1; i < screens.count; i++) { target = screens.objectAtIndex(i).frame; break; }
+let x, y, w, h;
+if (target) {
+  // NSScreen origin is bottom-left; AppleScript bounds are top-left relative to main.
+  x = target.origin.x; w = target.size.width; h = target.size.height;
+  y = main.size.height - (target.origin.y + h);
+} else {
+  w = Math.floor(main.size.width / 2); h = main.size.height; x = main.size.width - w; y = 0;
+}
+[x, y, w, h].map(Math.round).join(" ")')
+if [ -n "$name" ]; then
+  osascript -e "tell application \"Skim\"
+    set ws to (every window whose name is \"$name\")
+    if (count of ws) > 0 then set bounds of item 1 of ws to {$x, $y, $((x+w)), $((y+h))}
+  end tell" 2>/dev/null || true
+else
+  osascript -e "tell application \"Skim\" to if (count of windows) > 0 then set bounds of window 1 to {$x, $y, $((x+w)), $((y+h))}" 2>/dev/null || true
+fi
