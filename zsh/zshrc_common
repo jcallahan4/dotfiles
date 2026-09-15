@@ -71,6 +71,7 @@ bench() {
   nvim_pane="$(tmux display-message -p -t "$session_name":1 '#{pane_id}')"
   agent_pane="$(tmux split-window -h -P -F '#{pane_id}' -t "$nvim_pane" -c "$PWD" -l "${agent_width}%")"
   tmux split-window -v -t "$nvim_pane" -c "$PWD" -l 20%   # shell, under nvim only
+  tmux set-option -p -t "$agent_pane" @role agent   # `think` / `implement` target this pane
   tmux send-keys -t "$nvim_pane" 'nvim' C-m
   tmux send-keys -t "$agent_pane" "$agent" C-m
   tmux select-pane -t "$nvim_pane"

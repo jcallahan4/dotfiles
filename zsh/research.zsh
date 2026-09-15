@@ -251,20 +251,58 @@ mtg() {
   esac
 }
 
-# think: a discussion session, not a coding one. Codex opens read-only (it cannot edit
-# files) with a briefing to read PROJECT.md and the current spec, argue with you, and
-# propose experiments without writing code. Write the conclusions yourself into
-# PROJECT.md, SPEC.md, or NOTES.md afterwards.
-#   think                    read PROJECT.md
-#   think 003                also read experiments/003-*/SPEC.md (and its Results)
-#   think "some topic"       free-form topic
-think() {
+# --- Codex sessions in the bench's agent pane -------------------------------------
+# _codex_in_pane PROFILE ARGS... : start `codex -p PROFILE ARGS...` in the bench's agent
+# pane (the pane bench tagged @role=agent, else a pane already running codex). If a
+# session is running there, /quit it first. Outside tmux, or with no agent pane, run here.
+_codex_in_pane() {
+  local profile="$1"; shift
   local codex_bin="${CODEX_BIN:-$HOME/.local/bin/codex}"; [[ -x "$codex_bin" ]] || codex_bin="$(command -v codex)"
-  local arg="${1:-}" spec="" topic=""
-  if [[ "$arg" == <-> ]]; then
-    spec="$(ls -d experiments/$(printf '%03d' "$arg")-* 2>/dev/null | head -1)"
-    [[ -n "$spec" ]] && spec="$spec/SPEC.md"
-  elif [[ -n "$arg" ]]; then topic="$arg"; fi
-  local brief="This is a discussion session, not a coding session. You cannot edit files here and should not propose code. Read PROJECT.md${spec:+ and $spec (including its Results section if present)} first. I want to think out loud about${topic:+ $topic:} the research, the experiments, and what results mean. Your job: ask clarifying questions, argue against my ideas before agreeing with them, point out what an experiment would and would not show, and propose alternatives when mine are weak. Keep replies short and plain. When I say 'summarize', print the decisions and open questions as one line each so I can paste them into my files."
-  "$codex_bin" --sandbox read-only "$brief"
+  local pane=""
+  if [[ -n "$TMUX" ]]; then
+    pane="$(tmux list-panes -F '#{pane_id} #{@role}' | awk '$2 == "agent" {print $1; exit}')"
+    [[ -n "$pane" ]] || pane="$(tmux list-panes -F '#{pane_id} #{pane_current_command}' | awk '$2 == "codex" {print $1; exit}')"
+  fi
+  if [[ -z "$pane" ]]; then "$codex_bin" -p "$profile" "$@"; return; fi
+  if [[ "$(tmux display-message -p -t "$pane" '#{pane_current_command}')" == codex ]]; then
+    tmux send-keys -t "$pane" '/quit' Enter; sleep 0.5; tmux send-keys -t "$pane" Enter   # 1st Enter picks the slash command, 2nd runs it
+    local i; for i in {1..10}; do sleep 1; [[ "$(tmux display-message -p -t "$pane" '#{pane_current_command}')" != codex ]] && break; done
+    if [[ "$(tmux display-message -p -t "$pane" '#{pane_current_command}')" == codex ]]; then
+      echo "the agent pane's Codex session did not quit; finish or /quit it, then rerun" >&2
+      tmux select-pane -t "$pane"; return 1
+    fi
+  fi
+  local cmd="$codex_bin -p $profile"; local a; for a in "$@"; do cmd+=" ${(q)a}"; done
+  tmux send-keys -t "$pane" "$cmd" Enter
+  tmux select-pane -t "$pane"
 }
+
+_spec_for() {  # _spec_for [NNN] -> path of that experiment's SPEC.md, or the newest one
+  local n="${1:-}" d
+  if [[ -n "$n" ]]; then d="$(ls -d experiments/$(printf '%03d' "$n")-* 2>/dev/null | head -1)"
+  else d="$(ls -d experiments/[0-9][0-9][0-9]-* 2>/dev/null | sort | tail -1)"; fi
+  [[ -n "$d" && -f "$d/SPEC.md" ]] && print -r -- "$d/SPEC.md"
+}
+
+# think [NNN | "topic"]: discussion session (profile `think`, read-only sandbox). Codex
+# reads PROJECT.md and the spec, argues with you, proposes experiments, writes nothing.
+# You write the conclusions into PROJECT.md / SPEC.md / NOTES.md yourself.
+think() {
+  local arg="${1:-}" spec="" topic=""
+  if [[ "$arg" == <-> ]]; then spec="$(_spec_for "$arg")"; elif [[ -n "$arg" ]]; then topic="$arg"; fi
+  local brief="This is a discussion session, not a coding session. You cannot edit files and should not propose code. Read PROJECT.md${spec:+ and $spec (including its Results section if present)} first. I want to think out loud about${topic:+ $topic:} the research, the experiments, and what results mean. Ask clarifying questions, argue against my ideas before agreeing, say what an experiment would and would not show, and propose alternatives when mine are weak. Keep replies short and plain. When I say 'summarize', print the decisions and open questions one line each so I can paste them into my files."
+  _codex_in_pane think --sandbox read-only "$brief"
+}
+
+# implement [NNN] ["instruction"]: coding session (profile `code`). Codex reads AGENTS.md,
+# PROJECT.md, and the spec (experiment NNN, default the newest), then does the next plan
+# step or the instruction you give, one change at a time.
+implement() {
+  local n="" instr=""
+  if [[ "${1:-}" == <-> ]]; then n="$1"; shift; fi
+  instr="${1:-}"
+  local spec; spec="$(_spec_for "$n")" || true
+  local brief="Coding session. Read AGENTS.md and PROJECT.md${spec:+, then $spec}. ${instr:-${spec:+Find the first unfinished step in the spec's Plan and do only that step.}${spec:-Wait for my instruction.}} Make one change, commit it, report in three lines, and stop."
+  _codex_in_pane code "$brief"
+}
+alias impl=implement
