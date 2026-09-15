@@ -23,8 +23,9 @@ bar shows `[tmux]` and a yellow box with your position, such as `[5/11]`. Arrows
 PageDown, and the wheel move through history. Start typing and tmux leaves copy mode and
 delivers the keystroke to the program, so you can scroll up to read earlier output while
 composing a reply to Codex. Escape leaves without typing. To copy text, drag with the
-mouse or hold Shift with the arrows to select, then press Enter; the selection goes to the
-clipboard. `Ctrl-s` searches upward.
+mouse and release: the selection goes to the macOS clipboard. Double-click copies a word,
+triple-click a line. From the keyboard, hold Shift with the arrows to select, then press
+Enter. `Ctrl-s` searches upward.
 
 ## Neovim
 
