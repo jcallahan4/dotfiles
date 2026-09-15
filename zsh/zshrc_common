@@ -39,10 +39,15 @@ unset _plugin_prefix
 # alias "ls"="eza --icons=always --color=always --long --no-filesize --icons=always --no-time -G  --no-permissions --no-user"
 
 # nic: open (or reattach to) a tmux "cockpit" for the current project.
-#   nic            -> session named after $PWD; nvim left 70%, agent right 30%,
-#                     terminal across the bottom 20%
+#   nic            -> session named after $PWD. Layout:
+#                        +-----------------+-----------+
+#                        |  nvim   (60%)   |   agent   |
+#                        +-----------------+   (40%)   |
+#                        |  shell  (20% h) |           |
+#                        +-----------------+-----------+
 #   nic myname     -> explicit session name
-#   NIC_AGENT=claude nic   -> use a different agent (default: codex)
+#   NIC_AGENT=claude nic     -> use a different agent (default: codex)
+#   NIC_AGENT_WIDTH=35 nic   -> agent pane width in percent (default: 40)
 # Detach with prefix-d; `nic` again reattaches with everything still running.
 nic() {
   local session_name="${1:-$(basename "$PWD")}"
@@ -58,12 +63,17 @@ nic() {
     return
   fi
 
+  local agent_width="${NIC_AGENT_WIDTH:-40}"
   tmux new-session -d -s "$session_name" -c "$PWD" -x "$(tput cols)" -y "$(tput lines)"
-  tmux split-window -v -t "$session_name" -c "$PWD" -l 20%
-  tmux split-window -h -t "$session_name":1.1 -c "$PWD" -l 30%
-  tmux send-keys -t "$session_name":1.1 'nvim' C-m
-  tmux send-keys -t "$session_name":1.2 "$agent" C-m
-  tmux select-pane -t "$session_name":1.1
+  # pane 1 = nvim (left). Split right for the agent (full height), then split the left
+  # pane downward for the shell, so the shell sits only under nvim.
+  local nvim_pane agent_pane
+  nvim_pane="$(tmux display-message -p -t "$session_name":1 '#{pane_id}')"
+  agent_pane="$(tmux split-window -h -P -F '#{pane_id}' -t "$nvim_pane" -c "$PWD" -l "${agent_width}%")"
+  tmux split-window -v -t "$nvim_pane" -c "$PWD" -l 20%   # shell, under nvim only
+  tmux send-keys -t "$nvim_pane" 'nvim' C-m
+  tmux send-keys -t "$agent_pane" "$agent" C-m
+  tmux select-pane -t "$nvim_pane"
   tmux attach-session -t "$session_name"
 }
 

@@ -8,7 +8,7 @@ These come from `~/dotfiles` and work in any directory.
 |---|---|
 | `startup` | Scaffolds the current empty directory as a research project: uv project, templates, pre-commit hook, CI workflow, justfile, and a `baseline` tag. |
 | `newexp <name>` | Creates the next numbered `experiments/NNN-name/` folder with `SPEC.md`, `NOTES.md`, and a `config.yaml` copied from the previous experiment. |
-| `nic` | Opens a tmux session for this directory with Neovim on the left, the agent on the right, and a shell below. Reattaches if the session exists. Set `NIC_AGENT=claude` to use Claude Code. |
+| `nic` | Opens a tmux session for this directory: Neovim top left, a shell under it, and the agent in a full-height pane on the right (40% wide). Reattaches if the session exists. `NIC_AGENT=claude nic` uses Claude Code; `NIC_AGENT_WIDTH=35 nic` changes the agent width. |
 | `ontheroad` | Starts Codex remote control if it is not running, prints the connection status, and keeps the Mac awake until you press Ctrl-C. Use `ontheroad status` or `ontheroad stop` for those actions alone. |
 | `help <topic>` | Shows this reference. Topics: `workflow`, `commands`, `keys`, `git`, `plots`. |
 | `skim-place [file.pdf]` | Moves the Skim window for that PDF to the second display, or the right half of one display. `just watch` and `just paper` call it. |
