@@ -123,6 +123,22 @@ newexp() {
 # Inside an entry, start a line with the project name when a meeting covers several.
 : "${MEETINGS_DIR:=$HOME/notes/meetings}"
 
+# _open_in_nvim FILE [LINE] [insert]: open FILE in the bench's Neovim pane if we are in a
+# tmux window that has one (and jump the cursor there); otherwise run nvim right here.
+_open_in_nvim() {
+  local file="$1" line="${2:-1}" mode="${3:-}" pane
+  if [[ -n "$TMUX" ]]; then
+    pane="$(tmux list-panes -F '#{pane_id} #{pane_current_command}' | awk '$2 == "nvim" {print $1; exit}')"
+    if [[ -n "$pane" ]]; then
+      tmux send-keys -t "$pane" Escape ":edit ${file:q}" Enter ":${line}" Enter
+      [[ "$mode" == insert ]] && tmux send-keys -t "$pane" "A"
+      tmux select-pane -t "$pane"
+      return
+    fi
+  fi
+  if [[ "$mode" == insert ]]; then nvim "+${line}" "+startinsert" "$file"; else nvim "+${line}" "$file"; fi
+}
+
 _mtg_ensure_dir() { mkdir -p "$MEETINGS_DIR"; }
 
 _mtg_file() {  # _mtg_file NAME -> path, created from the template if missing
@@ -179,7 +195,7 @@ open(path, "w").write("".join(lines))
 print(idx + 2)
 PY
   )
-  nvim "+${line}" "+startinsert" "$file"
+  _open_in_nvim "$file" "$line" insert
 }
 
 _mtg_done() {  # _mtg_done PERSON
