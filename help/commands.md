@@ -7,7 +7,7 @@ These come from `~/dotfiles` and work in any directory.
 | Command | What it does |
 |---|---|
 | `startup` | Scaffolds the current empty directory as a research project: uv project, templates, pre-commit hook, CI workflow, justfile, and a `baseline` tag. |
-| `newexp <name>` | Creates the next numbered `experiments/NNN-name/` folder with `SPEC.md`, `NOTES.md`, and a `config.yaml` copied from the previous experiment. |
+| `newexp <name>` | Creates the next numbered `experiments/NNN-name/` folder with `SPEC.md`, `NOTES.md`, and a `config.yaml` copied from the previous experiment, then opens the spec at the Question section in the bench's Neovim pane. |
 | `bench` | Opens a tmux session for this directory: Neovim top left, a shell under it, and the agent in a full-height pane on the right (45% wide). Reattaches if the session exists. `BENCH_AGENT=claude bench` uses Claude Code; `BENCH_AGENT_WIDTH=35 bench` changes the agent width. |
 | `ontheroad` | Starts Codex remote control if it is not running, prints the connection status, and keeps the Mac awake until you press Ctrl-C. Use `ontheroad status` or `ontheroad stop` for those actions alone. |
 | `mtg <person> ["label"]` | Adds a dated header to `~/notes/meetings/<person>.md` and opens it there in insert mode, in the bench's Neovim pane if there is one. `mtg` alone lists people and their latest entry. Inside a project it also creates the gitignored `meetings/` link. |

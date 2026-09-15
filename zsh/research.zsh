@@ -108,6 +108,9 @@ newexp() {
   git add "$dir" 2>/dev/null && git commit -q -m "Add experiment $id-$name" 2>/dev/null || true
   echo "Created $dir"
   echo "Next: write $dir/SPEC.md before any code."
+  # open the spec at the Question section, in the bench's nvim pane if there is one
+  local qline; qline=$(grep -n '^## Question' "$dir/SPEC.md" | cut -d: -f1); qline=$(( ${qline:-1} + 2 ))
+  _open_in_nvim "$dir/SPEC.md" "$qline"
 }
 
 # mtg: meeting notes, one file per person in $MEETINGS_DIR (default ~/notes/meetings/).
