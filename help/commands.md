@@ -35,6 +35,7 @@ Run these inside a project. `just --list` shows the recipes that this repository
 | `just fig <name>` | Runs `figures/<name>.py`, which writes `paper/figures/<name>.pdf` and `.png`. | The script |
 | `just watch <name>` | Opens the PDF in Skim, then reruns the script every time you save it. Ctrl-C stops. | The script |
 | `just figs` | Renders every figure script. | |
+| `just show <file>` | Opens a result image or PDF. PDFs open in Skim on the second display, PNGs in Preview. | The file |
 | `just paper` | Runs latexmk in `paper/`. | `paper/paper.tex` |
 | `just clean` | Removes caches and scratch runs. | Nothing |
 

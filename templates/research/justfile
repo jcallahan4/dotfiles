@@ -42,6 +42,15 @@ watch name:
 figs:
     for f in figures/*.py; do uv run python "$f"; done
 
+# Open any result image or PDF: `just show runs/003/figures/loss.png`
+# PDFs open in Skim on the second display; PNGs in Preview.
+show file:
+    #!/usr/bin/env zsh
+    case "{{file}}" in
+      *.pdf) open -a Skim "{{file}}" && sleep 1 && command -v skim-place >/dev/null && skim-place "{{file}}" ;;
+      *) open "{{file}}" ;;
+    esac
+
 paper:
     cd paper && latexmk -pdf -interaction=nonstopmode -halt-on-error paper.tex
     -open -a Skim paper/paper.pdf && sleep 1 && command -v skim-place >/dev/null && skim-place paper/paper.pdf
