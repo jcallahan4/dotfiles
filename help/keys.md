@@ -20,7 +20,8 @@ The mouse also works. Click a pane, drag a border, or scroll.
 
 Scrolling enters copy mode, which works like a plain terminal's scrollback. The status
 bar shows `[tmux]` and a yellow box with your position, such as `[5/11]`. Arrows, PageUp,
-PageDown, and the wheel move through history. Start typing and tmux leaves copy mode and
+PageDown, and the wheel move through history, and so do `j`, `k`, `Ctrl-d`, `Ctrl-u`
+(half page), `g` (top), and `G` (bottom). Start typing and tmux leaves copy mode and
 delivers the keystroke to the program, so you can scroll up to read earlier output while
 composing a reply to Codex. Escape leaves without typing. To copy text, drag with the
 mouse and release: the selection goes to the macOS clipboard. Double-click copies a word,
