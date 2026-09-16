@@ -34,8 +34,11 @@ fi
 if (( open_instead )); then open -a Preview "$work/eq.pdf"; exit 0; fi
 # rasterize (sips renders PDF page 1) and draw inline
 sips -s format png -s dpiWidth 220 -s dpiHeight 220 "$work/eq.pdf" --out "$work/eq.png" >/dev/null 2>&1 || { open -a Preview "$work/eq.pdf"; exit 0; }
-if command -v timg >/dev/null 2>&1; then
-  timg -p kitty --center -g "${COLUMNS:-80}x30" "$work/eq.png"
+# Draw inline. chafa emits kitty graphics and, inside tmux, wraps them in tmux's
+# passthrough escape (tmux.conf has allow-passthrough on). Ghostty renders the result.
+if command -v chafa >/dev/null 2>&1; then
+  pt="none"; [[ -n "${TMUX:-}" ]] && pt="tmux"
+  chafa --format kitty --passthrough "$pt" --size "$(( ${COLUMNS:-80} - 2 ))x30" --align center "$work/eq.png"
 else
   open -a Preview "$work/eq.pdf"
 fi
