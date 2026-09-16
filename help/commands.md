@@ -17,6 +17,7 @@ These come from `~/dotfiles` and work in any directory.
 | `implement [NNN] ["instruction"]` | Coding session on GPT-5.6-Sol (profile `code`). It reads `AGENTS.md`, `PROJECT.md`, and the spec (experiment NNN, default the newest), then does the next unfinished plan step or your instruction: one change, commit, report, stop. Also `impl`. Starts in the bench's agent pane. |
 | `goodmorning` | From anywhere. Reads every project under `~/Desktop` with a `PROJECT.md` and prints a brief: deadlines with days left, overnight commits and finished runs with the commands to review them, your "Tomorrow, start with" lines, action items you owe, and one command to start with. Asks whether to open that project in `bench`. |
 | `goodnight` | Inside a project at the end of the day. The agent writes a day-log entry to `docs/daylog.md` (changed, runs, state, open items, suggested first step) and commits it; then `NOTES.md` opens at a new entry with "Done:" and "Tomorrow, start with:" for you to fill in. |
+| `eq [-o] [latex]` | Typesets LaTeX and draws it inline in the terminal. With no argument it reads the clipboard: select an equation in the Codex pane with the mouse, then run `eq`. `-o` opens the PDF in Preview instead. Handles `$...$`, `\[...\]`, fenced blocks, and `align`. |
 | `help <topic>` | Shows this reference. Topics: `workflow`, `commands`, `keys`, `git`, `plots`. |
 | `skim-place [file.pdf]` | Moves the Skim window for that PDF to the second display, or the right half of one display. `just watch` and `just paper` call it. |
 

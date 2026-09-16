@@ -1,0 +1,41 @@
+#!/bin/bash
+# eq [-o] [LATEX...]: typeset LaTeX math and show it in the terminal (kitty image
+# protocol; Ghostty supports it, tmux passes it through). With no arguments, the LaTeX is
+# read from the clipboard, so: select Codex's equation with the mouse (copies), then `eq`.
+# -o opens the rendered PDF in Preview instead of drawing inline.
+# Accepts display math, inline $...$, align environments, or a bare expression.
+set -euo pipefail
+open_instead=0
+[[ "${1:-}" == "-o" ]] && { open_instead=1; shift; }
+src="${*:-$(pbpaste)}"
+[[ -n "${src// /}" ]] || { echo "eq: nothing to render (clipboard empty)" >&2; exit 1; }
+
+# strip markdown fences and $$ delimiters; keep environments as-is
+src="$(printf '%s\n' "$src" | sed -E '/^\s*```/d; s/^\s*\$\$//; s/\$\$\s*$//')"
+if ! grep -qE '\\begin\{(align|equation|gather|multline|eqnarray)' <<< "$src"; then
+  # bare expression or $...$: wrap in display math
+  src="$(sed -E 's/^\s*\$//; s/\$\s*$//' <<< "$src")"
+  src="\\[ ${src} \\]"
+fi
+
+work="$(mktemp -d /tmp/eq.XXXXXX)"
+cat > "$work/eq.tex" << TEX
+\\documentclass[preview,border=8pt,varwidth=true]{standalone}
+\\usepackage{amsmath,amssymb,amsfonts,bm,mathtools}
+\\usepackage[T1]{fontenc}
+\\begin{document}
+\\Large
+${src}
+\\end{document}
+TEX
+if ! (cd "$work" && pdflatex -interaction=nonstopmode -halt-on-error eq.tex >/dev/null 2>&1); then
+  echo "eq: LaTeX failed. Log:" >&2; grep -A3 '^!' "$work/eq.log" | head -12 >&2; exit 1
+fi
+if (( open_instead )); then open -a Preview "$work/eq.pdf"; exit 0; fi
+# rasterize (sips renders PDF page 1) and draw inline
+sips -s format png -s dpiWidth 220 -s dpiHeight 220 "$work/eq.pdf" --out "$work/eq.png" >/dev/null 2>&1 || { open -a Preview "$work/eq.pdf"; exit 0; }
+if command -v timg >/dev/null 2>&1; then
+  timg -p kitty --center -g "${COLUMNS:-80}x30" "$work/eq.png"
+else
+  open -a Preview "$work/eq.pdf"
+fi

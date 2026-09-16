@@ -19,6 +19,12 @@ conflict.
 - Files named `NOTES.md` and `PROJECT.md` belong to the owner. Read them; never write in
   them.
 
+## Math in replies
+
+Write short expressions in Unicode in chat replies (∂L/∂θ, 𝔼[·], Σᵢ, x², ≤, ∈, →), since the
+terminal renders no LaTeX. Use LaTeX only for multi-line derivations, and put it in a
+fenced ```latex block by itself so the owner can select it and render it with `eq`.
+
 ## Writing
 
 Applies to everything you write: docs, comments, commit messages, reports, and replies.
